@@ -1,0 +1,221 @@
+{
+    "schedule": {
+      "days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "shift_requirements": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2
+      ],
+      "max_consecutive": 5,
+      "time_limit_sec": 30,
+      "employees": [
+        {
+          "id": "E1",
+          "max_shifts": 5,
+          "cost": 100,
+          "availability": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "E2",
+          "max_shifts": 5,
+          "cost": 110,
+          "availability": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "E3",
+          "max_shifts": 5,
+          "cost": 105,
+          "availability": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "E4",
+          "max_shifts": 6,
+          "cost": 120,
+          "availability": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "id": "E5",
+          "max_shifts": 6,
+          "cost": 115,
+          "availability": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "id": "E6",
+          "max_shifts": 5,
+          "cost": 130,
+          "availability": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "E7",
+          "max_shifts": 5,
+          "cost": 125,
+          "availability": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "E8",
+          "max_shifts": 4,
+          "cost": 95,
+          "availability": [
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "E9",
+          "max_shifts": 4,
+          "cost": 90,
+          "availability": [
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "E10",
+          "max_shifts": 4,
+          "cost": 100,
+          "availability": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "overtime_lp": {
+      "total_overtime_hours": 30,
+      "employees": [
+        {
+          "id": "E1",
+          "overtime_cost": 25,
+          "max_overtime": 8
+        },
+        {
+          "id": "E2",
+          "overtime_cost": 25,
+          "max_overtime": 8
+        },
+        {
+          "id": "E3",
+          "overtime_cost": 28,
+          "max_overtime": 8
+        },
+        {
+          "id": "E4",
+          "overtime_cost": 30,
+          "max_overtime": 10
+        },
+        {
+          "id": "E5",
+          "overtime_cost": 30,
+          "max_overtime": 10
+        },
+        {
+          "id": "E6",
+          "overtime_cost": 35,
+          "max_overtime": 10
+        },
+        {
+          "id": "E7",
+          "overtime_cost": 35,
+          "max_overtime": 10
+        },
+        {
+          "id": "E8",
+          "overtime_cost": 22,
+          "max_overtime": 6
+        },
+        {
+          "id": "E9",
+          "overtime_cost": 22,
+          "max_overtime": 6
+        },
+        {
+          "id": "E10",
+          "overtime_cost": 32,
+          "max_overtime": 8
+        }
+      ]
+    }
+  }
