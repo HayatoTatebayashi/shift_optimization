@@ -48,14 +48,7 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# 出力ファイル
-result.json
-solution.json
-
 # HiGHSライブラリの一時ファイル
 *.mps
 *.lp
 *.sol
-
-# プロジェクト固有のファイル
-generated_*.json

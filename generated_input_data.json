@@ -1,0 +1,6472 @@
+{
+  "settings": {
+    "planning_start_date": "2024-07-01",
+    "num_days_in_planning_period": 7,
+    "days_of_week_order": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
+    "max_consecutive_work_days": 4,
+    "time_limit_sec": 1800,
+    "hours_in_day": 24,
+    "cleaning_shift_start_hour": 10,
+    "cleaning_shift_end_hour": 15
+  },
+  "facilities": [
+    {
+      "id": "F001",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F002",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F003",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F004",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F005",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F006",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F007",
+      "cleaning_capacity_tasks_per_hour_per_employee": 7
+    },
+    {
+      "id": "F008",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F009",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F010",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F011",
+      "cleaning_capacity_tasks_per_hour_per_employee": 3
+    },
+    {
+      "id": "F012",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F013",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F014",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F015",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F016",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F017",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F018",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F019",
+      "cleaning_capacity_tasks_per_hour_per_employee": 7
+    },
+    {
+      "id": "F020",
+      "cleaning_capacity_tasks_per_hour_per_employee": 3
+    },
+    {
+      "id": "F021",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F022",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F023",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F024",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F025",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F026",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F027",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F028",
+      "cleaning_capacity_tasks_per_hour_per_employee": 3
+    },
+    {
+      "id": "F029",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F030",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F031",
+      "cleaning_capacity_tasks_per_hour_per_employee": 3
+    },
+    {
+      "id": "F032",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F033",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F034",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F035",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F036",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F037",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F038",
+      "cleaning_capacity_tasks_per_hour_per_employee": 3
+    },
+    {
+      "id": "F039",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F040",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F041",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F042",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F043",
+      "cleaning_capacity_tasks_per_hour_per_employee": 8
+    },
+    {
+      "id": "F044",
+      "cleaning_capacity_tasks_per_hour_per_employee": 5
+    },
+    {
+      "id": "F045",
+      "cleaning_capacity_tasks_per_hour_per_employee": 7
+    },
+    {
+      "id": "F046",
+      "cleaning_capacity_tasks_per_hour_per_employee": 7
+    },
+    {
+      "id": "F047",
+      "cleaning_capacity_tasks_per_hour_per_employee": 6
+    },
+    {
+      "id": "F048",
+      "cleaning_capacity_tasks_per_hour_per_employee": 3
+    },
+    {
+      "id": "F049",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    },
+    {
+      "id": "F050",
+      "cleaning_capacity_tasks_per_hour_per_employee": 4
+    }
+  ],
+  "employees": [
+    {
+      "id": "E001",
+      "cost_per_hour": 2443.34,
+      "preferred_facilities": [
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E002",
+      "cost_per_hour": 1250.16,
+      "preferred_facilities": [
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E003",
+      "cost_per_hour": 2484.24,
+      "preferred_facilities": [
+        "F026",
+        "F024",
+        "F015",
+        "F021",
+        "F039"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E004",
+      "cost_per_hour": 1515.15,
+      "preferred_facilities": [
+        "F001"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E005",
+      "cost_per_hour": 1267.33,
+      "preferred_facilities": [
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E006",
+      "cost_per_hour": 2371.49,
+      "preferred_facilities": [
+        "F045",
+        "F036",
+        "F015"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E007",
+      "cost_per_hour": 2113.66,
+      "preferred_facilities": [
+        "F016",
+        "F044",
+        "F006",
+        "F029"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E008",
+      "cost_per_hour": 1436.16,
+      "preferred_facilities": [
+        "F040"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E009",
+      "cost_per_hour": 1629.25,
+      "preferred_facilities": [
+        "F016",
+        "F001",
+        "F047"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E010",
+      "cost_per_hour": 1894.93,
+      "preferred_facilities": [
+        "F013",
+        "F016",
+        "F021",
+        "F050"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E011",
+      "cost_per_hour": 1781.39,
+      "preferred_facilities": [
+        "F004",
+        "F028",
+        "F022",
+        "F003"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E012",
+      "cost_per_hour": 2276.03,
+      "preferred_facilities": [
+        "F033",
+        "F028",
+        "F009",
+        "F025"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E013",
+      "cost_per_hour": 1522.38,
+      "preferred_facilities": [
+        "F033",
+        "F026",
+        "F001"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E014",
+      "cost_per_hour": 1649.49,
+      "preferred_facilities": [
+        "F048",
+        "F017",
+        "F032"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E015",
+      "cost_per_hour": 1361.05,
+      "preferred_facilities": [
+        "F002"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E016",
+      "cost_per_hour": 1562.6,
+      "preferred_facilities": [
+        "F028",
+        "F035"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E017",
+      "cost_per_hour": 1594.52,
+      "preferred_facilities": [
+        "F029",
+        "F013",
+        "F024",
+        "F021"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E018",
+      "cost_per_hour": 1576.62,
+      "preferred_facilities": [
+        "F007"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E019",
+      "cost_per_hour": 1938.43,
+      "preferred_facilities": [
+        "F037",
+        "F001",
+        "F018",
+        "F038"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E020",
+      "cost_per_hour": 2463.29,
+      "preferred_facilities": [
+        "F004",
+        "F033"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E021",
+      "cost_per_hour": 2216.0,
+      "preferred_facilities": [
+        "F002",
+        "F049",
+        "F046",
+        "F024"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E022",
+      "cost_per_hour": 1777.51,
+      "preferred_facilities": [
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E023",
+      "cost_per_hour": 2157.78,
+      "preferred_facilities": [
+        "F047",
+        "F026"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E024",
+      "cost_per_hour": 2395.69,
+      "preferred_facilities": [
+        "F044"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E025",
+      "cost_per_hour": 2494.31,
+      "preferred_facilities": [
+        "F004",
+        "F044",
+        "F014",
+        "F017"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E026",
+      "cost_per_hour": 1803.06,
+      "preferred_facilities": [
+        "F013"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E027",
+      "cost_per_hour": 1433.72,
+      "preferred_facilities": [
+        "F009",
+        "F050",
+        "F003",
+        "F043"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E028",
+      "cost_per_hour": 2327.16,
+      "preferred_facilities": [
+        "F015",
+        "F025",
+        "F020",
+        "F042"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E029",
+      "cost_per_hour": 2348.81,
+      "preferred_facilities": [
+        "F036"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E030",
+      "cost_per_hour": 2477.57,
+      "preferred_facilities": [
+        "F033"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E031",
+      "cost_per_hour": 2283.23,
+      "preferred_facilities": [
+        "F003",
+        "F048",
+        "F027",
+        "F031",
+        "F006"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E032",
+      "cost_per_hour": 2116.0,
+      "preferred_facilities": [
+        "F029",
+        "F014",
+        "F038",
+        "F001"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E033",
+      "cost_per_hour": 1732.17,
+      "preferred_facilities": [
+        "F030",
+        "F037"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E034",
+      "cost_per_hour": 1666.69,
+      "preferred_facilities": [
+        "F044",
+        "F018"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E035",
+      "cost_per_hour": 2422.63,
+      "preferred_facilities": [
+        "F021",
+        "F002",
+        "F036",
+        "F001",
+        "F033"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E036",
+      "cost_per_hour": 2057.61,
+      "preferred_facilities": [
+        "F046"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E037",
+      "cost_per_hour": 2305.82,
+      "preferred_facilities": [
+        "F049",
+        "F015",
+        "F017"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E038",
+      "cost_per_hour": 1975.1,
+      "preferred_facilities": [
+        "F012"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "06:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E039",
+      "cost_per_hour": 1454.41,
+      "preferred_facilities": [
+        "F040"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E040",
+      "cost_per_hour": 2137.28,
+      "preferred_facilities": [
+        "F027",
+        "F040",
+        "F048",
+        "F003",
+        "F031"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E041",
+      "cost_per_hour": 1670.87,
+      "preferred_facilities": [
+        "F004",
+        "F017",
+        "F039",
+        "F024",
+        "F021"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E042",
+      "cost_per_hour": 1743.46,
+      "preferred_facilities": [
+        "F011",
+        "F047",
+        "F002",
+        "F003",
+        "F039"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E043",
+      "cost_per_hour": 1249.77,
+      "preferred_facilities": [
+        "F015",
+        "F007"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E044",
+      "cost_per_hour": 2073.91,
+      "preferred_facilities": [
+        "F039",
+        "F015",
+        "F042",
+        "F006"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E045",
+      "cost_per_hour": 1687.49,
+      "preferred_facilities": [
+        "F031"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E046",
+      "cost_per_hour": 1707.0,
+      "preferred_facilities": [
+        "F038",
+        "F004",
+        "F047",
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E047",
+      "cost_per_hour": 1352.03,
+      "preferred_facilities": [
+        "F020",
+        "F030",
+        "F040",
+        "F009"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E048",
+      "cost_per_hour": 2360.47,
+      "preferred_facilities": [
+        "F016",
+        "F028",
+        "F045",
+        "F046",
+        "F044"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E049",
+      "cost_per_hour": 1303.8,
+      "preferred_facilities": [
+        "F021",
+        "F012"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E050",
+      "cost_per_hour": 2186.61,
+      "preferred_facilities": [
+        "F020",
+        "F034"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E051",
+      "cost_per_hour": 2289.0,
+      "preferred_facilities": [
+        "F039",
+        "F037",
+        "F017"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E052",
+      "cost_per_hour": 2193.89,
+      "preferred_facilities": [
+        "F014",
+        "F041"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E053",
+      "cost_per_hour": 1215.26,
+      "preferred_facilities": [
+        "F034",
+        "F024",
+        "F005",
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E054",
+      "cost_per_hour": 1924.37,
+      "preferred_facilities": [
+        "F027",
+        "F004",
+        "F007"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E055",
+      "cost_per_hour": 2227.33,
+      "preferred_facilities": [
+        "F043",
+        "F014"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E056",
+      "cost_per_hour": 1400.69,
+      "preferred_facilities": [
+        "F034",
+        "F013",
+        "F021",
+        "F027"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E057",
+      "cost_per_hour": 1519.21,
+      "preferred_facilities": [
+        "F014"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E058",
+      "cost_per_hour": 2435.48,
+      "preferred_facilities": [
+        "F027",
+        "F010",
+        "F050",
+        "F031"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E059",
+      "cost_per_hour": 1383.97,
+      "preferred_facilities": [
+        "F023",
+        "F008",
+        "F010"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E060",
+      "cost_per_hour": 1424.74,
+      "preferred_facilities": [
+        "F043",
+        "F033"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E061",
+      "cost_per_hour": 1506.33,
+      "preferred_facilities": [
+        "F001",
+        "F043",
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E062",
+      "cost_per_hour": 1525.14,
+      "preferred_facilities": [
+        "F002",
+        "F006",
+        "F045"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E063",
+      "cost_per_hour": 2410.39,
+      "preferred_facilities": [
+        "F033",
+        "F013",
+        "F029",
+        "F050"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E064",
+      "cost_per_hour": 1666.76,
+      "preferred_facilities": [
+        "F040",
+        "F018",
+        "F001",
+        "F011"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E065",
+      "cost_per_hour": 1480.3,
+      "preferred_facilities": [
+        "F024",
+        "F047"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E066",
+      "cost_per_hour": 1207.52,
+      "preferred_facilities": [
+        "F010"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E067",
+      "cost_per_hour": 1529.92,
+      "preferred_facilities": [
+        "F043"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E068",
+      "cost_per_hour": 1574.7,
+      "preferred_facilities": [
+        "F033",
+        "F008",
+        "F002"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E069",
+      "cost_per_hour": 2467.19,
+      "preferred_facilities": [
+        "F027",
+        "F037",
+        "F017",
+        "F021",
+        "F026"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E070",
+      "cost_per_hour": 1468.66,
+      "preferred_facilities": [
+        "F024",
+        "F005",
+        "F026"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E071",
+      "cost_per_hour": 2215.31,
+      "preferred_facilities": [
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E072",
+      "cost_per_hour": 2334.58,
+      "preferred_facilities": [
+        "F024",
+        "F008",
+        "F023",
+        "F049"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E073",
+      "cost_per_hour": 2469.01,
+      "preferred_facilities": [
+        "F036",
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E074",
+      "cost_per_hour": 1286.75,
+      "preferred_facilities": [
+        "F050",
+        "F030",
+        "F028",
+        "F047"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "07:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E075",
+      "cost_per_hour": 1837.37,
+      "preferred_facilities": [
+        "F017",
+        "F039",
+        "F007",
+        "F047",
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E076",
+      "cost_per_hour": 2470.92,
+      "preferred_facilities": [
+        "F023"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E077",
+      "cost_per_hour": 1996.25,
+      "preferred_facilities": [
+        "F032",
+        "F016",
+        "F043",
+        "F033",
+        "F014"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E078",
+      "cost_per_hour": 2206.39,
+      "preferred_facilities": [
+        "F036"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E079",
+      "cost_per_hour": 2462.96,
+      "preferred_facilities": [
+        "F043"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E080",
+      "cost_per_hour": 2143.23,
+      "preferred_facilities": [
+        "F018",
+        "F042",
+        "F024",
+        "F026"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E081",
+      "cost_per_hour": 1624.3,
+      "preferred_facilities": [
+        "F029",
+        "F018"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E082",
+      "cost_per_hour": 1562.21,
+      "preferred_facilities": [
+        "F017",
+        "F024",
+        "F048",
+        "F049"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E083",
+      "cost_per_hour": 1795.96,
+      "preferred_facilities": [
+        "F010",
+        "F018",
+        "F019",
+        "F040",
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E084",
+      "cost_per_hour": 1984.91,
+      "preferred_facilities": [
+        "F017",
+        "F036",
+        "F012"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E085",
+      "cost_per_hour": 2023.95,
+      "preferred_facilities": [
+        "F022",
+        "F025",
+        "F013",
+        "F034",
+        "F040"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E086",
+      "cost_per_hour": 1283.12,
+      "preferred_facilities": [
+        "F004",
+        "F027",
+        "F010",
+        "F018"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Wed",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "07:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E087",
+      "cost_per_hour": 2039.71,
+      "preferred_facilities": [
+        "F024",
+        "F034",
+        "F016"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E088",
+      "cost_per_hour": 1645.35,
+      "preferred_facilities": [
+        "F043"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E089",
+      "cost_per_hour": 2380.56,
+      "preferred_facilities": [
+        "F028"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E090",
+      "cost_per_hour": 1770.13,
+      "preferred_facilities": [
+        "F039",
+        "F042",
+        "F046",
+        "F040",
+        "F045"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E091",
+      "cost_per_hour": 1973.65,
+      "preferred_facilities": [
+        "F008",
+        "F045",
+        "F017",
+        "F012"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E092",
+      "cost_per_hour": 2444.94,
+      "preferred_facilities": [
+        "F014"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E093",
+      "cost_per_hour": 1457.48,
+      "preferred_facilities": [
+        "F018",
+        "F006",
+        "F011"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E094",
+      "cost_per_hour": 1944.72,
+      "preferred_facilities": [
+        "F036",
+        "F029"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E095",
+      "cost_per_hour": 2207.35,
+      "preferred_facilities": [
+        "F007",
+        "F038",
+        "F018"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E096",
+      "cost_per_hour": 2191.03,
+      "preferred_facilities": [
+        "F014",
+        "F031",
+        "F029"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E097",
+      "cost_per_hour": 1640.43,
+      "preferred_facilities": [
+        "F032",
+        "F028",
+        "F046",
+        "F011",
+        "F021"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E098",
+      "cost_per_hour": 1970.74,
+      "preferred_facilities": [
+        "F009",
+        "F003"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E099",
+      "cost_per_hour": 2215.75,
+      "preferred_facilities": [
+        "F024",
+        "F038"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E100",
+      "cost_per_hour": 2237.78,
+      "preferred_facilities": [
+        "F007",
+        "F014",
+        "F004",
+        "F035",
+        "F032"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E101",
+      "cost_per_hour": 1273.6,
+      "preferred_facilities": [
+        "F022",
+        "F019",
+        "F023",
+        "F043"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E102",
+      "cost_per_hour": 2391.97,
+      "preferred_facilities": [
+        "F045",
+        "F025"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "07:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E103",
+      "cost_per_hour": 1462.71,
+      "preferred_facilities": [
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E104",
+      "cost_per_hour": 2456.67,
+      "preferred_facilities": [
+        "F049",
+        "F010",
+        "F022",
+        "F025",
+        "F019"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E105",
+      "cost_per_hour": 2338.69,
+      "preferred_facilities": [
+        "F021"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "13:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E106",
+      "cost_per_hour": 2158.64,
+      "preferred_facilities": [
+        "F001",
+        "F046",
+        "F034"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E107",
+      "cost_per_hour": 1944.81,
+      "preferred_facilities": [
+        "F021",
+        "F023",
+        "F018",
+        "F008",
+        "F011"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E108",
+      "cost_per_hour": 2327.49,
+      "preferred_facilities": [
+        "F042",
+        "F050"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "08:00",
+          "end_time": "12:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E109",
+      "cost_per_hour": 2261.19,
+      "preferred_facilities": [
+        "F050",
+        "F015",
+        "F029"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E110",
+      "cost_per_hour": 1994.3,
+      "preferred_facilities": [
+        "F042",
+        "F021",
+        "F032",
+        "F022"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "07:00",
+          "end_time": "11:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E111",
+      "cost_per_hour": 2030.55,
+      "preferred_facilities": [
+        "F028",
+        "F050"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "10:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E112",
+      "cost_per_hour": 2283.01,
+      "preferred_facilities": [
+        "F001",
+        "F012",
+        "F026",
+        "F006",
+        "F032"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "10:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "08:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E113",
+      "cost_per_hour": 1800.16,
+      "preferred_facilities": [
+        "F029",
+        "F027",
+        "F013",
+        "F049",
+        "F005"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "08:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "11:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 10
+    },
+    {
+      "id": "E114",
+      "cost_per_hour": 1799.91,
+      "preferred_facilities": [
+        "F011",
+        "F023"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "11:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "07:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "15:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "11:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E115",
+      "cost_per_hour": 1541.2,
+      "preferred_facilities": [
+        "F012",
+        "F011"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "15:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "08:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "06:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "07:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 3,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E116",
+      "cost_per_hour": 1864.2,
+      "preferred_facilities": [
+        "F003",
+        "F021"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "13:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "12:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "13:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 6
+    },
+    {
+      "id": "E117",
+      "cost_per_hour": 2352.83,
+      "preferred_facilities": [
+        "F038"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "10:00",
+          "end_time": "17:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "13:00",
+          "end_time": "20:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "12:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "15:00",
+          "end_time": "19:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 8
+    },
+    {
+      "id": "E118",
+      "cost_per_hour": 2058.7,
+      "preferred_facilities": [
+        "F026",
+        "F002"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Tue",
+          "start_time": "14:00",
+          "end_time": "22:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "09:00",
+          "end_time": "19:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "06:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "13:00",
+          "end_time": "21:00"
+        },
+        {
+          "day_of_week": "Sun",
+          "start_time": "10:00",
+          "end_time": "16:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 9
+    },
+    {
+      "id": "E119",
+      "cost_per_hour": 1517.48,
+      "preferred_facilities": [
+        "F045",
+        "F012"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "06:00",
+          "end_time": "12:00"
+        },
+        {
+          "day_of_week": "Mon",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "06:00",
+          "end_time": "11:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "09:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "14:00",
+          "end_time": "18:00"
+        }
+      ],
+      "contract_max_days_per_week": 5,
+      "contract_max_hours_per_day": 7
+    },
+    {
+      "id": "E120",
+      "cost_per_hour": 2065.36,
+      "preferred_facilities": [
+        "F020",
+        "F048",
+        "F002",
+        "F031"
+      ],
+      "availability": [
+        {
+          "day_of_week": "Mon",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "07:00",
+          "end_time": "16:00"
+        },
+        {
+          "day_of_week": "Tue",
+          "start_time": "11:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Wed",
+          "start_time": "10:00",
+          "end_time": "14:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Thu",
+          "start_time": "13:00",
+          "end_time": "23:00"
+        },
+        {
+          "day_of_week": "Fri",
+          "start_time": "10:00",
+          "end_time": "18:00"
+        },
+        {
+          "day_of_week": "Sat",
+          "start_time": "15:00",
+          "end_time": "23:00"
+        }
+      ],
+      "contract_max_days_per_week": 4,
+      "contract_max_hours_per_day": 9
+    }
+  ],
+  "overtime_lp": {
+    "total_overtime_hours": 185,
+    "employees": [
+      {
+        "id": "E001",
+        "overtime_cost": 4270.42,
+        "max_overtime": 15
+      },
+      {
+        "id": "E002",
+        "overtime_cost": 2143.93,
+        "max_overtime": 8
+      },
+      {
+        "id": "E003",
+        "overtime_cost": 3593.42,
+        "max_overtime": 13
+      },
+      {
+        "id": "E004",
+        "overtime_cost": 3000.03,
+        "max_overtime": 5
+      },
+      {
+        "id": "E005",
+        "overtime_cost": 1789.86,
+        "max_overtime": 14
+      },
+      {
+        "id": "E006",
+        "overtime_cost": 3515.71,
+        "max_overtime": 12
+      },
+      {
+        "id": "E007",
+        "overtime_cost": 2651.63,
+        "max_overtime": 11
+      },
+      {
+        "id": "E008",
+        "overtime_cost": 2746.46,
+        "max_overtime": 8
+      },
+      {
+        "id": "E009",
+        "overtime_cost": 2916.91,
+        "max_overtime": 5
+      },
+      {
+        "id": "E010",
+        "overtime_cost": 2518.74,
+        "max_overtime": 8
+      },
+      {
+        "id": "E011",
+        "overtime_cost": 3116.49,
+        "max_overtime": 9
+      },
+      {
+        "id": "E012",
+        "overtime_cost": 3970.06,
+        "max_overtime": 8
+      },
+      {
+        "id": "E013",
+        "overtime_cost": 2178.04,
+        "max_overtime": 14
+      },
+      {
+        "id": "E014",
+        "overtime_cost": 2362.58,
+        "max_overtime": 6
+      },
+      {
+        "id": "E015",
+        "overtime_cost": 2460.54,
+        "max_overtime": 5
+      },
+      {
+        "id": "E016",
+        "overtime_cost": 2478.31,
+        "max_overtime": 9
+      },
+      {
+        "id": "E017",
+        "overtime_cost": 2778.23,
+        "max_overtime": 12
+      },
+      {
+        "id": "E018",
+        "overtime_cost": 2329.85,
+        "max_overtime": 15
+      },
+      {
+        "id": "E019",
+        "overtime_cost": 2536.44,
+        "max_overtime": 10
+      },
+      {
+        "id": "E020",
+        "overtime_cost": 3125.85,
+        "max_overtime": 9
+      },
+      {
+        "id": "E021",
+        "overtime_cost": 3833.83,
+        "max_overtime": 14
+      },
+      {
+        "id": "E022",
+        "overtime_cost": 3490.84,
+        "max_overtime": 5
+      },
+      {
+        "id": "E023",
+        "overtime_cost": 3320.59,
+        "max_overtime": 8
+      },
+      {
+        "id": "E024",
+        "overtime_cost": 3918.52,
+        "max_overtime": 6
+      },
+      {
+        "id": "E025",
+        "overtime_cost": 3342.5,
+        "max_overtime": 13
+      },
+      {
+        "id": "E026",
+        "overtime_cost": 3041.44,
+        "max_overtime": 12
+      },
+      {
+        "id": "E027",
+        "overtime_cost": 2065.99,
+        "max_overtime": 6
+      },
+      {
+        "id": "E028",
+        "overtime_cost": 3461.5,
+        "max_overtime": 15
+      },
+      {
+        "id": "E029",
+        "overtime_cost": 3113.91,
+        "max_overtime": 9
+      },
+      {
+        "id": "E030",
+        "overtime_cost": 3617.29,
+        "max_overtime": 12
+      },
+      {
+        "id": "E031",
+        "overtime_cost": 3545.81,
+        "max_overtime": 10
+      },
+      {
+        "id": "E032",
+        "overtime_cost": 3335.79,
+        "max_overtime": 7
+      },
+      {
+        "id": "E033",
+        "overtime_cost": 3076.45,
+        "max_overtime": 13
+      },
+      {
+        "id": "E034",
+        "overtime_cost": 2529.98,
+        "max_overtime": 13
+      },
+      {
+        "id": "E035",
+        "overtime_cost": 3227.0,
+        "max_overtime": 5
+      },
+      {
+        "id": "E036",
+        "overtime_cost": 3307.84,
+        "max_overtime": 9
+      },
+      {
+        "id": "E037",
+        "overtime_cost": 3969.25,
+        "max_overtime": 13
+      },
+      {
+        "id": "E038",
+        "overtime_cost": 2826.53,
+        "max_overtime": 10
+      },
+      {
+        "id": "E039",
+        "overtime_cost": 2748.06,
+        "max_overtime": 11
+      },
+      {
+        "id": "E040",
+        "overtime_cost": 3815.29,
+        "max_overtime": 5
+      },
+      {
+        "id": "E041",
+        "overtime_cost": 2130.0,
+        "max_overtime": 6
+      },
+      {
+        "id": "E042",
+        "overtime_cost": 2992.06,
+        "max_overtime": 9
+      },
+      {
+        "id": "E043",
+        "overtime_cost": 2318.72,
+        "max_overtime": 14
+      },
+      {
+        "id": "E044",
+        "overtime_cost": 3545.61,
+        "max_overtime": 7
+      },
+      {
+        "id": "E045",
+        "overtime_cost": 2877.17,
+        "max_overtime": 14
+      },
+      {
+        "id": "E046",
+        "overtime_cost": 3207.36,
+        "max_overtime": 12
+      },
+      {
+        "id": "E047",
+        "overtime_cost": 2416.21,
+        "max_overtime": 5
+      },
+      {
+        "id": "E048",
+        "overtime_cost": 4109.02,
+        "max_overtime": 12
+      },
+      {
+        "id": "E049",
+        "overtime_cost": 2506.76,
+        "max_overtime": 11
+      },
+      {
+        "id": "E050",
+        "overtime_cost": 4017.6,
+        "max_overtime": 15
+      },
+      {
+        "id": "E051",
+        "overtime_cost": 3603.85,
+        "max_overtime": 14
+      },
+      {
+        "id": "E052",
+        "overtime_cost": 4009.31,
+        "max_overtime": 6
+      },
+      {
+        "id": "E053",
+        "overtime_cost": 2254.49,
+        "max_overtime": 11
+      },
+      {
+        "id": "E054",
+        "overtime_cost": 3292.39,
+        "max_overtime": 12
+      },
+      {
+        "id": "E055",
+        "overtime_cost": 3462.25,
+        "max_overtime": 10
+      },
+      {
+        "id": "E056",
+        "overtime_cost": 1973.75,
+        "max_overtime": 9
+      },
+      {
+        "id": "E057",
+        "overtime_cost": 2968.28,
+        "max_overtime": 15
+      },
+      {
+        "id": "E058",
+        "overtime_cost": 3469.39,
+        "max_overtime": 9
+      },
+      {
+        "id": "E059",
+        "overtime_cost": 2262.72,
+        "max_overtime": 14
+      },
+      {
+        "id": "E060",
+        "overtime_cost": 2777.19,
+        "max_overtime": 5
+      },
+      {
+        "id": "E061",
+        "overtime_cost": 2718.7,
+        "max_overtime": 15
+      },
+      {
+        "id": "E062",
+        "overtime_cost": 2361.15,
+        "max_overtime": 9
+      },
+      {
+        "id": "E063",
+        "overtime_cost": 3197.29,
+        "max_overtime": 12
+      },
+      {
+        "id": "E064",
+        "overtime_cost": 2574.47,
+        "max_overtime": 9
+      },
+      {
+        "id": "E065",
+        "overtime_cost": 2713.95,
+        "max_overtime": 9
+      },
+      {
+        "id": "E066",
+        "overtime_cost": 2305.28,
+        "max_overtime": 11
+      },
+      {
+        "id": "E067",
+        "overtime_cost": 2703.56,
+        "max_overtime": 6
+      },
+      {
+        "id": "E068",
+        "overtime_cost": 1991.93,
+        "max_overtime": 10
+      },
+      {
+        "id": "E069",
+        "overtime_cost": 4208.58,
+        "max_overtime": 11
+      },
+      {
+        "id": "E070",
+        "overtime_cost": 2676.35,
+        "max_overtime": 6
+      },
+      {
+        "id": "E071",
+        "overtime_cost": 3963.19,
+        "max_overtime": 9
+      },
+      {
+        "id": "E072",
+        "overtime_cost": 3435.22,
+        "max_overtime": 9
+      },
+      {
+        "id": "E073",
+        "overtime_cost": 3395.02,
+        "max_overtime": 6
+      },
+      {
+        "id": "E074",
+        "overtime_cost": 2352.55,
+        "max_overtime": 11
+      },
+      {
+        "id": "E075",
+        "overtime_cost": 3244.66,
+        "max_overtime": 14
+      },
+      {
+        "id": "E076",
+        "overtime_cost": 3593.69,
+        "max_overtime": 15
+      },
+      {
+        "id": "E077",
+        "overtime_cost": 3046.37,
+        "max_overtime": 11
+      },
+      {
+        "id": "E078",
+        "overtime_cost": 2847.06,
+        "max_overtime": 9
+      },
+      {
+        "id": "E079",
+        "overtime_cost": 4210.63,
+        "max_overtime": 11
+      },
+      {
+        "id": "E080",
+        "overtime_cost": 4204.24,
+        "max_overtime": 10
+      },
+      {
+        "id": "E081",
+        "overtime_cost": 2276.3,
+        "max_overtime": 13
+      },
+      {
+        "id": "E082",
+        "overtime_cost": 2126.28,
+        "max_overtime": 6
+      },
+      {
+        "id": "E083",
+        "overtime_cost": 2991.27,
+        "max_overtime": 11
+      },
+      {
+        "id": "E084",
+        "overtime_cost": 3056.97,
+        "max_overtime": 7
+      },
+      {
+        "id": "E085",
+        "overtime_cost": 3395.77,
+        "max_overtime": 15
+      },
+      {
+        "id": "E086",
+        "overtime_cost": 2249.85,
+        "max_overtime": 7
+      },
+      {
+        "id": "E087",
+        "overtime_cost": 3435.42,
+        "max_overtime": 13
+      },
+      {
+        "id": "E088",
+        "overtime_cost": 2632.64,
+        "max_overtime": 10
+      },
+      {
+        "id": "E089",
+        "overtime_cost": 4564.34,
+        "max_overtime": 7
+      },
+      {
+        "id": "E090",
+        "overtime_cost": 3006.4,
+        "max_overtime": 8
+      },
+      {
+        "id": "E091",
+        "overtime_cost": 3905.46,
+        "max_overtime": 6
+      },
+      {
+        "id": "E092",
+        "overtime_cost": 3149.83,
+        "max_overtime": 5
+      },
+      {
+        "id": "E093",
+        "overtime_cost": 2783.36,
+        "max_overtime": 6
+      },
+      {
+        "id": "E094",
+        "overtime_cost": 2499.35,
+        "max_overtime": 8
+      },
+      {
+        "id": "E095",
+        "overtime_cost": 4001.59,
+        "max_overtime": 7
+      },
+      {
+        "id": "E096",
+        "overtime_cost": 3428.06,
+        "max_overtime": 15
+      },
+      {
+        "id": "E097",
+        "overtime_cost": 2650.24,
+        "max_overtime": 7
+      },
+      {
+        "id": "E098",
+        "overtime_cost": 2672.52,
+        "max_overtime": 7
+      },
+      {
+        "id": "E099",
+        "overtime_cost": 3155.42,
+        "max_overtime": 6
+      },
+      {
+        "id": "E100",
+        "overtime_cost": 4215.41,
+        "max_overtime": 13
+      },
+      {
+        "id": "E101",
+        "overtime_cost": 2414.32,
+        "max_overtime": 10
+      },
+      {
+        "id": "E102",
+        "overtime_cost": 4728.47,
+        "max_overtime": 8
+      },
+      {
+        "id": "E103",
+        "overtime_cost": 2161.18,
+        "max_overtime": 14
+      },
+      {
+        "id": "E104",
+        "overtime_cost": 3184.1,
+        "max_overtime": 13
+      },
+      {
+        "id": "E105",
+        "overtime_cost": 3099.55,
+        "max_overtime": 8
+      },
+      {
+        "id": "E106",
+        "overtime_cost": 4147.24,
+        "max_overtime": 14
+      },
+      {
+        "id": "E107",
+        "overtime_cost": 2768.34,
+        "max_overtime": 13
+      },
+      {
+        "id": "E108",
+        "overtime_cost": 3363.43,
+        "max_overtime": 9
+      },
+      {
+        "id": "E109",
+        "overtime_cost": 3561.94,
+        "max_overtime": 14
+      },
+      {
+        "id": "E110",
+        "overtime_cost": 3363.04,
+        "max_overtime": 9
+      },
+      {
+        "id": "E111",
+        "overtime_cost": 3419.52,
+        "max_overtime": 9
+      },
+      {
+        "id": "E112",
+        "overtime_cost": 4182.66,
+        "max_overtime": 14
+      },
+      {
+        "id": "E113",
+        "overtime_cost": 2417.75,
+        "max_overtime": 8
+      },
+      {
+        "id": "E114",
+        "overtime_cost": 2452.76,
+        "max_overtime": 10
+      },
+      {
+        "id": "E115",
+        "overtime_cost": 2037.17,
+        "max_overtime": 5
+      },
+      {
+        "id": "E116",
+        "overtime_cost": 3541.4,
+        "max_overtime": 7
+      },
+      {
+        "id": "E117",
+        "overtime_cost": 4305.31,
+        "max_overtime": 12
+      },
+      {
+        "id": "E118",
+        "overtime_cost": 3989.43,
+        "max_overtime": 10
+      },
+      {
+        "id": "E119",
+        "overtime_cost": 2703.33,
+        "max_overtime": 7
+      },
+      {
+        "id": "E120",
+        "overtime_cost": 3839.5,
+        "max_overtime": 11
+      }
+    ]
+  }
+}
