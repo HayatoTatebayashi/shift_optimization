@@ -19,13 +19,17 @@
    - 個人別の上限考慮
    - 総残業コストの最小化
 
-使用方法:
-    python solve_new.py generated_input_data.json generated_cleaning_tasks.json > solution.json
+local_main 実行方法:
+    python solve_new.py generated_combined_input_data.json > solution.json
+    ターミナルに直接表示されます（標準エラー出力なので）。もしファイルに保存したい場合は、
+    python solve_new.py generated_combined_input_data.json > solution.json 2> run_debug.log
+
 """
 import json
 import sys
 import math
 import datetime
+import functions_framework # Cloud Run/Functions 用
 from ortools.sat.python import cp_model
 from ortools.linear_solver import pywraplp
 
@@ -33,8 +37,9 @@ from ortools.linear_solver import pywraplp
 HOURS_IN_DAY = 24
 MAX_RETRY_ATTEMPTS = 3 # ソフト制約緩和の最大試行回数
 PENALTY_REDUCTION_FACTOR = 0.5 # ペナルティを緩和する際の係数
+DEFAULT_TIME_LIMIT_SEC = 60 # Cloud Run 用のデフォルト実行時間制限
 
-full_result = {
+_local_full_result_for_testing_only = {
     'logs': {
         'schedule': [],
         'overtime': [],
@@ -43,7 +48,8 @@ full_result = {
         'info': []
     },
     'schedule_result': None,
-    'overtime_result': None
+    'overtime_result': None,
+    'applied_constraints_history': []
 }
 CP_SOLVER_STATUS_MAP = {
     cp_model.OPTIMAL: 'OPTIMAL',
@@ -63,15 +69,19 @@ def _create_highs_solver(model_name="model"):
         return s
 
 # --- ログ関連ヘルパー関数 ---
-def add_log(category, message, details=None):
+def add_log(full_result_ref, category, message, details=None):
     """汎用ログ追加関数"""
     return
     # log_entry = {"timestamp": datetime.datetime.now().isoformat(), "message": message}
     # if details:
     #     log_entry["details"] = details
     
-    # if category in full_result['logs']:
-    #     full_result['logs'][category].append(log_entry)
+    # # HTTP関数の場合、最初に初期化されることを想定。ローカルでは事前に初期化済み。
+    # if 'logs' not in full_result_ref: 
+    #     full_result_ref['logs'] = {'schedule': [], 'overtime': [], 'errors': [], 'warnings': [], 'info': []}
+    
+    # if category in full_result_ref['logs']:
+    #     full_result_ref['logs'][category].append(log_entry)
     # else:
     #     error_log_entry = {
     #         "timestamp": datetime.datetime.now().isoformat(),
@@ -79,10 +89,14 @@ def add_log(category, message, details=None):
     #         "original_message": message
     #     }
     #     if details: error_log_entry["original_details"] = details
-    #     full_result['logs']['errors'].append(error_log_entry)
-    #     print(f"警告: 未知のログカテゴリ '{category}' が使用されました。", file=sys.stderr)
+    #     # 未知のカテゴリもエラーログに記録する
+    #     if 'errors' not in full_result_ref['logs']: # errorsキーがない場合も考慮
+    #          full_result_ref['logs']['errors'] = []
+    #     full_result_ref['logs']['errors'].append(error_log_entry)
+    #     # 標準エラーにも警告を出すのは良いプラクティス
+    #     print(f"警告(ログ): 未知のログカテゴリ '{category}' ({message}) が使用されました。", file=sys.stderr)
 
-def add_model_stats_log(model_instance, category, event_message):
+def add_model_stats_log(full_result_ref, model_instance, category, event_message):
     """モデルの統計情報をログに記録するヘルパー関数"""
     return
     # stats = {'num_variables': 'unknown', 'num_constraints': 'unknown'}
@@ -107,22 +121,22 @@ def add_model_stats_log(model_instance, category, event_message):
     # except Exception as e:
     #     add_log('errors', f'モデル統計情報の取得中に予期せぬエラー: {str(e)}', {**log_details_base, "error_details": str(e)})
 
-# --- その他ヘルパー関数 ---
-def parse_time_to_int(time_str):
+# --- その他ヘルパー関数 (full_result_ref を受け取るように変更) ---
+def parse_time_to_int(full_result_ref, time_str): # full_result_ref を追加
     try:
         return int(time_str.split(":")[0])
     except (ValueError, AttributeError, IndexError) as e:
-        add_log('errors', f"時間文字列 '{time_str}' のパースに失敗: {e}")
+        add_log(full_result_ref, 'errors', f"時間文字列 '{time_str}' のパースに失敗: {e}")
         raise ValueError(f"無効な時間形式: {time_str}") from e
 
-def get_employee_availability_matrix(employees_data, num_total_days, days_of_week_order, planning_start_date_obj):
+def get_employee_availability_matrix(full_result_ref, employees_data, num_total_days, days_of_week_order, planning_start_date_obj): # full_result_ref を追加
     availability_matrix = {}
     for emp_idx, emp in enumerate(employees_data):
         for avail_slot in emp.get('availability', []):
             try:
                 day_of_week_spec = avail_slot['day_of_week']
-                start_hour_int = parse_time_to_int(avail_slot['start_time'])
-                end_hour_int = parse_time_to_int(avail_slot['end_time'])
+                start_hour_int = parse_time_to_int(full_result_ref, avail_slot['start_time']) # full_result_ref を渡す
+                end_hour_int = parse_time_to_int(full_result_ref, avail_slot['end_time'])   # full_result_ref を渡す
                 for day_idx in range(num_total_days):
                     current_date = planning_start_date_obj + datetime.timedelta(days=day_idx)
                     current_day_of_week_str = days_of_week_order[current_date.weekday()]
@@ -130,11 +144,11 @@ def get_employee_availability_matrix(employees_data, num_total_days, days_of_wee
                         for hour_idx in range(start_hour_int, end_hour_int):
                             if 0 <= hour_idx < HOURS_IN_DAY:
                                 availability_matrix[(emp_idx, day_idx, hour_idx)] = True
-            except KeyError as e: add_log('warnings', f"従業員 {emp.get('id', 'N/A')} の勤務可能時間データにキーエラー: {e}", {"employee_id": emp.get('id')})
-            except ValueError as e: add_log('warnings', f"従業員 {emp.get('id', 'N/A')} の時間関連データエラー: {e}", {"employee_id": emp.get('id')})
+            except KeyError as e: add_log(full_result_ref, 'warnings', f"従業員 {emp.get('id', 'N/A')} の勤務可能時間データにキーエラー: {e}", {"employee_id": emp.get('id')})
+            except ValueError as e: add_log(full_result_ref, 'warnings', f"従業員 {emp.get('id', 'N/A')} の時間関連データエラー: {e}", {"employee_id": emp.get('id')})
     return availability_matrix
 
-def get_cleaning_tasks_for_day_facility(facility_id_str, current_date_obj, cleaning_data_json, days_of_week_order):
+def get_cleaning_tasks_for_day_facility(full_result_ref, facility_id_str, current_date_obj, cleaning_data_json, days_of_week_order): # full_result_ref を追加
     date_str = current_date_obj.strftime("%Y-%m-%d")
     day_of_week_str = days_of_week_order[current_date_obj.weekday()]
     try:
@@ -143,23 +157,20 @@ def get_cleaning_tasks_for_day_facility(facility_id_str, current_date_obj, clean
         if date_str in day_specific_tasks: return day_specific_tasks[date_str]
         default_tasks = facility_tasks.get("default_tasks_for_day_of_week", {})
         if day_of_week_str in default_tasks: return default_tasks[day_of_week_str]
-    except Exception as e: add_log('warnings', f"清掃タスク取得中にエラー ({facility_id_str}, {date_str}): {e}", {"facility_id": facility_id_str, "date": date_str})
+    except Exception as e: add_log(full_result_ref, 'warnings', f"清掃タスク取得中にエラー ({facility_id_str}, {date_str}): {e}", {"facility_id": facility_id_str, "date": date_str})
     return 0
 
 # ---------- 1. シフトスケジューリング (CP-SAT) ----------
-def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, penalty_multipliers=None):
+def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, time_limit_sec, retry_attempt=0, penalty_multipliers=None):
     """
     シフトスケジューリングを行う関数 (ソフト制約緩和による再試行ロジックを含む)
     """
     run_id = f"attempt_{retry_attempt}_{datetime.datetime.now().strftime('%H%M%S%f')}"
-    add_log('info', f"[{run_id}] シフトスケジューリング処理開始 (試行回数: {retry_attempt})", {"penalty_multipliers": penalty_multipliers})
+    add_log(full_result_ref, 'info', f"[{run_id}] シフトスケジューリング処理開始 (試行回数: {retry_attempt})", {"penalty_multipliers": penalty_multipliers})
     
     if penalty_multipliers is None:
-        penalty_multipliers = { # デフォルトのペナルティ乗数
-            "consecutive_days": 1.0,
-            "weekly_days": 1.0,
-            "daily_hours": 1.0,
-            "staff_shortage": 1.0
+        penalty_multipliers = {
+            "consecutive_days": 1.0, "weekly_days": 1.0, "daily_hours": 1.0, "staff_shortage": 1.0
         }
 
     settings = schedule_input_data['settings']
@@ -170,7 +181,6 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
     F_indices = range(num_facilities)
     facility_id_to_idx = {f['id']: i for i, f in enumerate(facilities_data)}
     facility_idx_to_id = {i: f['id'] for i, f in enumerate(facilities_data)}
-    
     num_employees = len(employees_data)
     W_indices = range(num_employees)
     employee_id_to_idx = {e['id']: i for i, e in enumerate(employees_data)}
@@ -185,8 +195,8 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
     cleaning_end_h = settings['cleaning_shift_end_hour'] 
     cleaning_hours_duration = cleaning_end_h - cleaning_start_h
     
-    emp_avail_matrix = get_employee_availability_matrix(employees_data, num_total_days, days_of_week_order, planning_start_date_obj)
-    add_log('info', f"[{run_id}] 従業員の勤務可能時間マトリックス作成完了")
+    emp_avail_matrix = get_employee_availability_matrix(full_result_ref, employees_data, num_total_days, days_of_week_order, planning_start_date_obj)
+    add_log(full_result_ref, 'info', f"[{run_id}] 従業員の勤務可能時間マトリックス作成完了")
 
     emp_preferred_facilities_idx_sets = [
         set(facility_id_to_idx[fid] for fid in emp.get('preferred_facilities', []) if fid in facility_id_to_idx)
@@ -194,7 +204,7 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
     ]
 
     model = cp_model.CpModel()
-    add_log('schedule', f"[{run_id}] CP-SATモデルオブジェクト作成完了")
+    add_log(full_result_ref, 'schedule', f"[{run_id}] CP-SATモデルオブジェクト作成完了")
 
     x = {}
     for f_idx in F_indices:
@@ -202,13 +212,13 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
             for d_idx in D_indices:
                 for h_idx in H_indices:
                     x[f_idx, w_idx, d_idx, h_idx] = model.NewBoolVar(f'x_f{f_idx}_w{w_idx}_d{d_idx}_h{h_idx}')
-    add_log('schedule', f"[{run_id}] 決定変数 (x[f,w,d,h]) 作成完了", {"num_x_vars": len(x)})
+    add_log(full_result_ref, 'schedule', f"[{run_id}] 決定変数 (x) 作成完了", {"num_x_vars": len(x)})
 
     works_on_day = {}
     for w_idx in W_indices:
         for d_idx in D_indices:
             works_on_day[w_idx, d_idx] = model.NewBoolVar(f'works_w{w_idx}_d{d_idx}')
-    add_log('schedule', f"[{run_id}] 補助変数 (works_on_day[w,d]) 作成完了", {"num_works_on_day_vars": len(works_on_day)})
+    add_log(full_result_ref, 'schedule', f"[{run_id}] 補助変数 (works_on_day) 作成完了", {"num_works_on_day_vars": len(works_on_day)})
 
     # --- 制約設定の記録用 ---
     current_constraints_settings = {
@@ -238,14 +248,13 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
             }
         }
     }
-    # `full_result` に制約設定を追記録していく (リストとして)
-    if 'applied_constraints_history' not in full_result:
-        full_result['applied_constraints_history'] = []
-    full_result['applied_constraints_history'].append(current_constraints_settings)
+    if 'applied_constraints_history' not in full_result_ref: 
+        full_result_ref['applied_constraints_history'] = [] # HTTP関数の場合、最初に初期化
+    full_result_ref['applied_constraints_history'].append(current_constraints_settings)
 
 
     # --- ハード制約 ---
-    add_log('schedule', f"[{run_id}] ハード制約の追加開始")
+    add_log(full_result_ref, 'schedule', f"[{run_id}] ハード制約の追加開始")
     # 1. 従業員の勤務可能時間と希望施設
     for f_idx in F_indices:
         for w_idx in W_indices:
@@ -271,8 +280,8 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
             model.Add(hours_worked_this_day > 0).OnlyEnforceIf(works_on_day[w_idx, d_idx])
             model.Add(hours_worked_this_day == 0).OnlyEnforceIf(works_on_day[w_idx, d_idx].Not())
     
-    add_log('schedule', f"[{run_id}] 全てのハード制約の追加完了")
-    add_model_stats_log(model, 'schedule', f"[{run_id}] ハード制約追加後のモデル状態")
+    add_log(full_result_ref, 'schedule', f"[{run_id}] 全てのハード制約の追加完了")
+    add_model_stats_log(full_result_ref, model, 'schedule', f"[{run_id}] ハード制約追加後のモデル状態")
 
     # --- ソフト制約 ---
     soft_penalty_terms = []
@@ -337,7 +346,7 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
         if facility_cleaning_capacity_per_hr <= 0: facility_cleaning_capacity_per_hr = 1
         for d_idx in D_indices:
             current_date = planning_start_date_obj + datetime.timedelta(days=d_idx)
-            daily_cleaning_tasks = get_cleaning_tasks_for_day_facility(facility_idx_to_id[f_idx], current_date, cleaning_tasks_data, days_of_week_order)
+            daily_cleaning_tasks = get_cleaning_tasks_for_day_facility(full_result_ref, facility_idx_to_id[f_idx], current_date, cleaning_tasks_data, days_of_week_order)
             for h_idx in H_indices:
                 required_staff_target = 1
                 if cleaning_start_h <= h_idx < cleaning_end_h:
@@ -364,27 +373,27 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
                     objective_terms.append(x[f_idx, w_idx, d_idx, h_idx] * cost_per_hour)
     
     model.Minimize(sum(objective_terms) + sum(soft_penalty_terms))
-    add_log('schedule', f"[{run_id}] 目的関数設定完了")
-    add_model_stats_log(model, 'schedule', f"[{run_id}] 目的関数設定後のモデル状態")
+    add_log(full_result_ref, 'schedule', f"[{run_id}] 目的関数設定完了")
+    add_model_stats_log(full_result_ref, model, 'schedule', f"[{run_id}] 目的関数設定後のモデル状態")
     
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = settings.get('time_limit_sec', 60)
     solver.parameters.log_search_progress = True
     # solver.parameters.num_search_workers = 8 # 必要に応じて有効化
 
-    add_log('info', f"[{run_id}] CP-SATソルバー実行開始 (制限時間: {solver.parameters.max_time_in_seconds}秒)")
+    add_log(full_result_ref, 'info', f"[{run_id}] CP-SATソルバー実行開始 (制限時間: {time_limit_sec}秒)")
     status = solver.Solve(model)
     status_str = CP_SOLVER_STATUS_MAP.get(status, 'UNKNOWN')
     objective_value = solver.ObjectiveValue() if status in [cp_model.OPTIMAL, cp_model.FEASIBLE] else None
     wall_time = solver.WallTime()
-    add_log('info', f"[{run_id}] CP-SATソルバー実行完了", {'status': status_str, 'wall_time': wall_time, 'objective': objective_value})
+    add_log(full_result_ref, 'info', f"[{run_id}] CP-SATソルバー実行完了", {'status': status_str, 'wall_time': wall_time, 'objective': objective_value})
 
     result = {'status': status_str, 'run_id': run_id, 'applied_constraints_settings': current_constraints_settings}
     
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
         result['objective'] = objective_value
         result['wall_time_sec'] = wall_time
-        add_log('schedule', f"[{run_id}] 解が見つかりました", {"objective": result['objective'], "wall_time_sec": result['wall_time_sec']})
+        add_log(full_result_ref, 'schedule', f"[{run_id}] 解が見つかりました", {"objective": result['objective'], "wall_time_sec": result['wall_time_sec']})
         
         assignments = []
         for w_idx in W_indices:
@@ -413,28 +422,28 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
             total_days = sum(solver.Value(works_on_day[w_idx, d_idx]) for d_idx in D_indices)
             diagnostics["days_worked_per_employee"][emp_id] = total_days
         result["diagnostics"] = diagnostics
-        add_log('schedule', f"[{run_id}] 結果の整形完了", {"num_assignments": len(assignments)})
+        add_log(full_result_ref, 'schedule', f"[{run_id}] 結果の整形完了", {"num_assignments": len(assignments)})
         return result # 成功したので結果を返す
     else: # INFEASIBLE, MODEL_INVALID, UNKNOWN
         result['message'] = f"[{run_id}] 解が見つかりませんでした (ステータス: {status_str})"
-        add_log('errors', result['message'], {"status_code": status, "status_text": status_str})
+        add_log(full_result_ref, 'errors', result['message'], {"status_code": status, "status_text": status_str})
 
         if status == cp_model.INFEASIBLE and retry_attempt < MAX_RETRY_ATTEMPTS:
-            add_log('warnings', f"[{run_id}] 実行不可能でした。ペナルティを緩和して再試行します (試行 {retry_attempt + 1}/{MAX_RETRY_ATTEMPTS})。")
+            add_log(full_result_ref, 'warnings', f"[{run_id}] 実行不可能でした。ペナルティを緩和して再試行します (試行 {retry_attempt + 1}/{MAX_RETRY_ATTEMPTS})。")
             new_penalty_multipliers = {k: v * PENALTY_REDUCTION_FACTOR for k, v in penalty_multipliers.items()}
             return solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt + 1, new_penalty_multipliers)
         else:
             if status == cp_model.INFEASIBLE:
-                add_log('errors', f"[{run_id}] 最大試行回数 ({MAX_RETRY_ATTEMPTS}) に達しても実行不可能なままでした。")
+                add_log(full_result_ref, 'errors', f"[{run_id}] 最大試行回数 ({MAX_RETRY_ATTEMPTS}) に達しても実行不可能なままでした。")
             return result # 最終的な失敗結果を返す
 
 # ---------- 2. 残業時間最適配分 (LP) ----------
-def solve_overtime_lp(overtime_input_data):
+def solve_overtime_lp(full_result_ref, overtime_input_data):
     run_id = f"overtime_{datetime.datetime.now().strftime('%H%M%S%f')}"
-    add_log('info', f"[{run_id}] 残業時間最適配分処理開始")
+    add_log(full_result_ref, 'info', f"[{run_id}] 残業時間最適配分処理開始")
     if not overtime_input_data or not overtime_input_data.get('employees'):
         msg = '残業データが提供されていないか、従業員リストが空です。'
-        add_log('warnings', f"[{run_id}] {msg}")
+        add_log(full_result_ref, 'warnings', f"[{run_id}] {msg}")
         return {'status': 'NO_DATA', 'message': msg, 'run_id': run_id}
 
     employees_ot_data = overtime_input_data['employees']
@@ -442,21 +451,21 @@ def solve_overtime_lp(overtime_input_data):
 
     if total_ot_needed <= 0:
         msg = '必要な総残業時間が0以下です。処理をスキップします。'
-        add_log('info', f"[{run_id}] {msg}")
+        add_log(full_result_ref, 'info', f"[{run_id}] {msg}")
         return {'status': 'OK', 'objective': 0, 'allocation': [], 'message': msg, 'run_id': run_id}
 
     solver = _create_highs_solver("overtime_lp")
     if not solver:
         msg = 'HiGHSソルバーの作成に失敗しました。'
-        add_log('errors', f"[{run_id}] {msg}")
+        add_log(full_result_ref, 'errors', f"[{run_id}] {msg}")
         return {'status': 'SOLVER_ERROR', 'message': msg, 'run_id': run_id}
-    add_log('overtime', f"[{run_id}] HiGHSソルバーオブジェクト作成完了")
+    add_log(full_result_ref, 'overtime', f"[{run_id}] HiGHSソルバーオブジェクト作成完了")
 
     x = {}
     for emp in employees_ot_data:
         max_ot = emp.get('max_overtime', 0)
         if 'id' not in emp or max_ot <= 0:
-            add_log('warnings', f"[{run_id}] 従業員 {emp.get('id', 'ID不明')} の残業変数は作成されません。", emp)
+            add_log(full_result_ref, 'warnings', f"[{run_id}] 従業員 {emp.get('id', 'ID不明')} の残業変数は作成されません。", emp)
             continue
         x[emp['id']] = solver.NumVar(0, max_ot, f'ot_{emp["id"]}')
     
@@ -464,26 +473,26 @@ def solve_overtime_lp(overtime_input_data):
         if total_ot_needed > 0: msg = "残業を割り当てる有効な従業員がいませんが、残業が必要です。"
         else: msg = "残業を割り当てる有効な従業員がおらず、必要な残業もありません。"
         log_level = 'errors' if total_ot_needed > 0 else 'info'
-        add_log(log_level, f"[{run_id}] {msg}")
+        add_log(full_result_ref, log_level, f"[{run_id}] {msg}")
         return {'status': 'INFEASIBLE' if total_ot_needed > 0 else 'OK', 'objective': 0, 'allocation': [], 'message': msg, 'run_id': run_id}
             
-    add_log('overtime', f"[{run_id}] 決定変数作成完了 (有効従業員数: {len(x)})")
+    add_log(full_result_ref, 'overtime', f"[{run_id}] 決定変数作成完了 (有効従業員数: {len(x)})")
     solver.Add(sum(x.values()) == total_ot_needed)
-    add_log('overtime', f"[{run_id}] 総残業時間制約 ({total_ot_needed}時間) 追加完了")
+    add_log(full_result_ref, 'overtime', f"[{run_id}] 総残業時間制約 ({total_ot_needed}時間) 追加完了")
     
     objective_terms = [emp.get('overtime_cost', 99999) * x[emp['id']] for emp in employees_ot_data if emp['id'] in x]
-    if objective_terms: solver.Minimize(sum(objective_terms)); add_log('overtime', f"[{run_id}] 目的関数設定完了")
-    else: add_log('warnings', f"[{run_id}] 残業配分: 目的関数が設定されませんでした。")
+    if objective_terms: solver.Minimize(sum(objective_terms)); add_log(full_result_ref, 'overtime', f"[{run_id}] 目的関数設定完了")
+    else: add_log(full_result_ref, 'warnings', f"[{run_id}] 残業配分: 目的関数が設定されませんでした。")
 
-    add_model_stats_log(solver, 'overtime', f"[{run_id}] LPモデル構築完了後の状態")
-    add_log('info', f"[{run_id}] LPソルバー実行開始")
+    add_model_stats_log(full_result_ref, solver, 'overtime', f"[{run_id}] LPモデル構築完了後の状態")
+    add_log(full_result_ref, 'info', f"[{run_id}] LPソルバー実行開始")
     status = solver.Solve()
-    add_log('info', f"[{run_id}] LPソルバー実行完了 (ステータスコード: {status})")
+    add_log(full_result_ref, 'info', f"[{run_id}] LPソルバー実行完了 (ステータスコード: {status})")
 
     if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
         obj_val = solver.Objective().Value() if objective_terms else 0
         allocation = [{'id': emp_id, 'overtime_hours': var.solution_value()} for emp_id, var in x.items()]
-        add_log('overtime', f"[{run_id}] 解が見つかりました", {"objective": obj_val, "num_allocations": len(allocation)})
+        add_log(full_result_ref, 'overtime', f"[{run_id}] 解が見つかりました", {"objective": obj_val, "num_allocations": len(allocation)})
         return {'status': 'OK', 'objective': obj_val, 'allocation': allocation, 'run_id': run_id}
     else:
         status_map = { pywraplp.Solver.INFEASIBLE: 'INFEASIBLE', pywraplp.Solver.UNBOUNDED: 'UNBOUNDED', 
@@ -491,68 +500,157 @@ def solve_overtime_lp(overtime_input_data):
                        pywraplp.Solver.MODEL_INVALID: 'MODEL_INVALID' }
         status_str = status_map.get(status, f'UNKNOWN_STATUS_{status}')
         msg = f'残業配分問題で解が見つかりませんでした (ステータス: {status_str})。'
-        add_log('errors', f"[{run_id}] {msg}", {"status_code": status, "status_text": status_str})
+        add_log(full_result_ref, 'errors', f"[{run_id}] {msg}", {"status_code": status, "status_text": status_str})
         return {'status': status_str, 'message': msg, 'run_id': run_id}
 
-# ---------- メイン処理 ----------
-def main():
-    global full_result
-    run_id_main = f"main_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    add_log('info', f"[{run_id_main}] スクリプト実行開始", {"arguments": sys.argv})
-
-    if len(sys.argv) < 3:
-        msg = '使用方法: solve.py <input_data.json> <cleaning_tasks.json>'
-        add_log('errors', f"[{run_id_main}] {msg}")
-        print(msg, file=sys.stderr)
-        print(json.dumps(full_result, indent=2, ensure_ascii=False))
-        sys.exit(1)
+# ---------- HTTPトリガー関数 ----------
+@functions_framework.http
+def solve_shift_http(request):
+    """
+    HTTPリクエストに応じてシフトスケジューリングと残業配分を実行する関数。
+    リクエストボディには combined_input_data.json と同様の構造のJSONを期待する。
+    また、クエリパラメータで time_limit_sec を指定可能。
+    """
+    # リクエストごとに結果を初期化
+    current_full_result = {
+        'logs': {'schedule': [], 'overtime': [], 'errors': [], 'warnings': [], 'info': []},
+        'schedule_result': None,
+        'overtime_result': None,
+        'applied_constraints_history': []
+    }
+    run_id_main = f"http_main_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')}"
+    add_log(current_full_result, 'info', f"[{run_id_main}] HTTPリクエスト受信", {"headers": dict(request.headers)})
     
-    input_data_filepath = sys.argv[1]
-    cleaning_tasks_filepath = sys.argv[2]
+    request_json = request.get_json(silent=True)
+    # Content-Typeの確認
+    if not request_json:
+        msg = "リクエストボディが空か、JSON形式ではありません。"
+        add_log(current_full_result, 'errors', f"[{run_id_main}] {msg}")
+        # ensure_ascii=False をレスポンスヘッダと dumps の両方に適用
+        return (json.dumps({"error": msg, "logs": current_full_result['logs']}, ensure_ascii=False), 
+                400, {'Content-Type': 'application/json; charset=utf-8'})
 
+    schedule_input = request_json.get("schedule_input")
+    cleaning_tasks_input = request_json.get("cleaning_tasks_input")
+
+    if not schedule_input or not cleaning_tasks_input:
+        msg = "リクエストJSONに必要なキー 'schedule_input' または 'cleaning_tasks_input' がありません。"
+        add_log(current_full_result, 'errors', f"[{run_id_main}] {msg}")
+        return (json.dumps({"error": msg, "logs": current_full_result['logs']}, ensure_ascii=False), 
+                400, {'Content-Type': 'application/json; charset=utf-8'})
+
+    time_limit_schedule_sec = request.args.get('time_limit_sec', str(DEFAULT_TIME_LIMIT_SEC)) # strで取得
     try:
-        with open(input_data_filepath, 'r', encoding='utf-8') as f: input_json_data = json.load(f)
-        add_log('info', f"[{run_id_main}] 入力ファイル '{input_data_filepath}' の読み込み成功")
-    except FileNotFoundError:
-        add_log('errors', f"[{run_id_main}] 入力ファイル '{input_data_filepath}' が見つかりません。")
-        print(json.dumps(full_result, indent=2, ensure_ascii=False)); sys.exit(1)
-    except json.JSONDecodeError as e:
-        add_log('errors', f"[{run_id_main}] 入力ファイル '{input_data_filepath}' のJSON形式エラー: {e}")
-        print(json.dumps(full_result, indent=2, ensure_ascii=False)); sys.exit(1)
+        time_limit_schedule_sec = int(time_limit_schedule_sec)
+        if time_limit_schedule_sec <= 0: time_limit_schedule_sec = DEFAULT_TIME_LIMIT_SEC
+    except ValueError:
+        add_log(current_full_result, 'warnings', f"[{run_id_main}] time_limit_sec の値が無効です ({request.args.get('time_limit_sec')})。デフォルト値 {DEFAULT_TIME_LIMIT_SEC} を使用します。")
+        time_limit_schedule_sec = DEFAULT_TIME_LIMIT_SEC
+    add_log(current_full_result, 'info', f"[{run_id_main}] スケジュールソルバーの制限時間: {time_limit_schedule_sec}秒")
 
-    try:
-        with open(cleaning_tasks_filepath, 'r', encoding='utf-8') as f: cleaning_tasks_json_data = json.load(f)
-        add_log('info', f"[{run_id_main}] 清掃タスクファイル '{cleaning_tasks_filepath}' の読み込み成功")
-    except FileNotFoundError:
-        add_log('errors', f"[{run_id_main}] 清掃タスクファイル '{cleaning_tasks_filepath}' が見つかりません。")
-        print(json.dumps(full_result, indent=2, ensure_ascii=False)); sys.exit(1)
-    except json.JSONDecodeError as e:
-        add_log('errors', f"[{run_id_main}] 清掃タスクファイル '{cleaning_tasks_filepath}' のJSON形式エラー: {e}")
-        print(json.dumps(full_result, indent=2, ensure_ascii=False)); sys.exit(1)
 
-    full_result['schedule_result'] = None
-    full_result['overtime_result'] = None
-
-    if 'settings' in input_json_data and 'facilities' in input_json_data and 'employees' in input_json_data:
+    if 'settings' in schedule_input and 'facilities' in schedule_input and 'employees' in schedule_input:
         print(f"--- [{run_id_main}] シフトスケジューリングを開始 ---", file=sys.stderr)
-        # 初回呼び出し (retry_attempt=0, penalty_multipliers=None でデフォルト値を使用)
-        full_result['schedule_result'] = solve_schedule(input_json_data, cleaning_tasks_json_data, 0, None)
+        current_full_result['schedule_result'] = solve_schedule(current_full_result, schedule_input, cleaning_tasks_input, time_limit_schedule_sec, 0, None)
         print(f"--- [{run_id_main}] シフトスケジューリングを終了 ---", file=sys.stderr)
     else:
         msg = 'スケジューリングに必要な基本データ（settings, facilities, employees）が不足しています。'
-        add_log('errors', f"[{run_id_main}] {msg}")
-        full_result['schedule_result'] = {'status': 'NO_DATA_ERROR', 'message': msg, 'run_id': run_id_main}
+        add_log(current_full_result, 'errors', f"[{run_id_main}] {msg}")
+        current_full_result['schedule_result'] = {'status': 'NO_DATA_ERROR', 'message': msg, 'run_id': run_id_main}
 
-    if 'overtime_lp' in input_json_data:
+    if 'overtime_lp' in schedule_input:
         print(f"--- [{run_id_main}] 残業時間最適配分を開始 ---", file=sys.stderr)
-        full_result['overtime_result'] = solve_overtime_lp(input_json_data.get('overtime_lp', {}))
+        current_full_result['overtime_result'] = solve_overtime_lp(current_full_result, schedule_input.get('overtime_lp', {}))
         print(f"--- [{run_id_main}] 残業時間最適配分を終了 ---", file=sys.stderr)
     else:
-        add_log('info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
-        full_result['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
+        add_log(current_full_result, 'info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
+        current_full_result['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
 
-    add_log('info', f"[{run_id_main}] スクリプト実行終了")
-    print(json.dumps(full_result, indent=2, ensure_ascii=False))
+    add_log(current_full_result, 'info', f"[{run_id_main}] HTTPリクエスト処理終了")
+    return (json.dumps(current_full_result, indent=2, ensure_ascii=False), 
+            200, {'Content-Type': 'application/json; charset=utf-8'})
+
+# コマンドライン実行用の main 関数 (ローカルテスト用)
+def local_main():
+    global _local_full_result_for_testing_only # ローカルテスト専用のグローバル変数を使用
+    run_id_main = f"local_main_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    
+    # _local_full_result_for_testing_only の 'logs' と 'applied_constraints_history' を初期化
+    _local_full_result_for_testing_only['logs'] = {
+        'schedule': [], 'overtime': [], 'errors': [], 'warnings': [], 'info': []
+    }
+    _local_full_result_for_testing_only['applied_constraints_history'] = []
+
+    # add_log は _local_full_result_for_testing_only['logs'] に記録する想定
+    add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] ローカル実行開始", {"arguments": sys.argv})
+
+    if len(sys.argv) < 2:
+        msg = '使用方法: python solve_new.py <combined_input_data.json>'
+        add_log(_local_full_result_for_testing_only, 'errors', f"[{run_id_main}] {msg}")
+        print(msg, file=sys.stderr) # ★標準エラーに出力
+        # print(json.dumps(_local_full_result_for_testing_only, indent=2, ensure_ascii=False)) # ★この行を削除またはコメントアウト
+        sys.exit(1) # エラーメッセージ出力後、終了
+    
+    combined_input_filepath = sys.argv[1]
+
+    try:
+        with open(combined_input_filepath, 'r', encoding='utf-8') as f: combined_input_data = json.load(f)
+        add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] 結合入力ファイル '{combined_input_filepath}' の読み込み成功")
+    except FileNotFoundError:
+        error_msg = f"結合入力ファイル '{combined_input_filepath}' が見つかりません。"
+        add_log(_local_full_result_for_testing_only, 'errors', f"[{run_id_main}] {error_msg}")
+        print(error_msg, file=sys.stderr) # ★標準エラー
+        # print(json.dumps(_local_full_result_for_testing_only, indent=2, ensure_ascii=False)); # ★削除
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        error_msg = f"結合入力ファイル '{combined_input_filepath}' のJSON形式エラー: {e}"
+        add_log(_local_full_result_for_testing_only, 'errors', f"[{run_id_main}] {error_msg}")
+        print(error_msg, file=sys.stderr) # ★標準エラー
+        # print(json.dumps(_local_full_result_for_testing_only, indent=2, ensure_ascii=False)); # ★削除
+        sys.exit(1)
+
+    schedule_input = combined_input_data.get("schedule_input")
+    cleaning_tasks_input = combined_input_data.get("cleaning_tasks_input")
+
+    if not schedule_input or not cleaning_tasks_input:
+        msg = "結合入力JSONに必要なキー 'schedule_input' または 'cleaning_tasks_input' がありません。"
+        add_log(_local_full_result_for_testing_only, 'errors', f"[{run_id_main}] {msg}")
+        print(msg, file=sys.stderr) # ★標準エラー
+        # print(json.dumps(_local_full_result_for_testing_only, indent=2, ensure_ascii=False)); # ★削除
+        sys.exit(1)
+
+    time_limit_schedule_sec = schedule_input.get("settings", {}).get("time_limit_sec", DEFAULT_TIME_LIMIT_SEC)
+    add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] スケジュールソルバーの制限時間(ローカル): {time_limit_schedule_sec}秒")
+
+    # 以下の print 文は既に file=sys.stderr になっているので問題なし
+    if 'settings' in schedule_input and 'facilities' in schedule_input and 'employees' in schedule_input:
+        print(f"--- [{run_id_main}] シフトスケジューリングを開始 ---", file=sys.stderr)
+        _local_full_result_for_testing_only['schedule_result'] = solve_schedule(_local_full_result_for_testing_only, schedule_input, cleaning_tasks_input, time_limit_schedule_sec, 0, None)
+        print(f"--- [{run_id_main}] シフトスケジューリングを終了 ---", file=sys.stderr)
+    else:
+        msg = 'スケジューリングに必要な基本データ（settings, facilities, employees）が不足しています。'
+        add_log(_local_full_result_for_testing_only, 'errors', f"[{run_id_main}] {msg}")
+        _local_full_result_for_testing_only['schedule_result'] = {'status': 'NO_DATA_ERROR', 'message': msg, 'run_id': run_id_main}
+
+    if 'overtime_lp' in schedule_input:
+        print(f"--- [{run_id_main}] 残業時間最適配分を開始 ---", file=sys.stderr)
+        _local_full_result_for_testing_only['overtime_result'] = solve_overtime_lp(_local_full_result_for_testing_only, schedule_input.get('overtime_lp', {}))
+        print(f"--- [{run_id_main}] 残業時間最適配分を終了 ---", file=sys.stderr)
+    else:
+        add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
+        _local_full_result_for_testing_only['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
+
+    add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] ローカル実行終了")
+    
+    # ★ 最終的なJSON結果をファイルに直接UTF-8で書き出す
+    output_json_filepath = "solution.json" # 出力ファイル名を定義
+    try:
+        with open(output_json_filepath, 'w', encoding='utf-8') as f:
+            json.dump(_local_full_result_for_testing_only, f, indent=2, ensure_ascii=False)
+        print(f"結果を '{output_json_filepath}' に保存しました。", file=sys.stderr) # 標準エラーに進捗表示
+    except IOError as e:
+        print(f"エラー: 結果ファイル '{output_json_filepath}' の書き込みに失敗: {e}", file=sys.stderr)
+        # エラーが発生した場合でも、標準出力には何も出さない
 
 if __name__ == '__main__':
-    main()
+    local_main()
