@@ -16,9 +16,9 @@ CLEANING_SHIFT_END_HOUR = 15
 # 従業員関連の範囲設定
 COST_PER_HOUR_RANGE = (1200.0, 1500.0)  # 時給（例: 円）
 NUM_PREFERRED_FACILITIES_RANGE = (1, 7) # 従業員が希望する施設数の範囲
-AVAILABILITY_SLOTS_PER_DAY_RANGE = (0, 2) # 1日の勤務可能時間帯の数（0は非番）同日の重複申請
-AVAILABILITY_START_HOUR_RANGE = (8, 23)   # 勤務開始可能時間の範囲 (例: 6時～15時)
-AVAILABILITY_DURATION_HOURS_RANGE = (5, 8) # 1つの勤務時間帯の長さの範囲
+# AVAILABILITY_SLOTS_PER_DAY_RANGE = (0, 2) # 1日の勤務可能時間帯の数（0は非番）同日の重複申請
+RANDOM_AVAILABILITY_START_HOUR_RANGE  = (8, 23)   # 勤務開始可能時間の範囲 (例: 6時～15時)
+RANDOM_AVAILABILITY_DURATION_HOURS_RANGE = (5, 8) # 1つの勤務時間帯の長さの範囲
 CONTRACT_MAX_DAYS_PER_WEEK_RANGE = (3, 5)   # 週の契約最大労働日数
 CONTRACT_MAX_HOURS_PER_DAY_RANGE = (6, 10)    # 1日の契約最大労働時間
 
@@ -40,27 +40,32 @@ PENALTY_SETTINGS = {
 }
 
 
-# --- ヘルパー関数 ---
+# --- 主要シフトパターン ---
+COMMON_SHIFTS = [
+    {"name": "Day", "start": 9, "end": 17},      # 9:00 - 17:00 (8h)
+    {"name": "Evening", "start": 17, "end": 22}, # 17:00 - 22:00 (5h)
+    {"name": "Night", "start": 22, "end": 33}    # 22:00 - 翌9:00 (11h), end は 24 + 9 で表現
+]
+# 主要シフトを選ぶ確率 (例: 80%)
+PROBABILITY_COMMON_SHIFT = 0.8
+# 1日に複数のスロットをリクエストする確率 (主要シフトが選ばれた後、さらに追加する確率)
+PROBABILITY_SECOND_SLOT = 0.1
+
+
 def format_time(hour):
-    return f"{hour:02d}:00"
+    return f"{hour % 24:02d}:00"
 
 def generate_schedule_data():
     schedule_data = {"settings": {}, "facilities": [], "employees": [], "overtime_lp": {}}
-
-    # --- Settings ---
     schedule_data["settings"]["planning_start_date"] = PLANNING_START_DATE_STR
     schedule_data["settings"]["num_days_in_planning_period"] = NUM_DAYS_IN_PLANNING_PERIOD
     schedule_data["settings"]["days_of_week_order"] = DAYS_OF_WEEK_ORDER
     schedule_data["settings"]["max_consecutive_work_days"] = random.randint(*MAX_CONSECUTIVE_WORK_DAYS_RANGE)
-    # schedule_data["settings"]["time_limit_sec"] = TIME_LIMIT_SEC # solve_new.py側で固定またはリクエストから取得
     schedule_data["settings"]["hours_in_day"] = 24
     schedule_data["settings"]["cleaning_shift_start_hour"] = CLEANING_SHIFT_START_HOUR
     schedule_data["settings"]["cleaning_shift_end_hour"] = CLEANING_SHIFT_END_HOUR
-    # ペナルティ設定もsettingsに含める
     schedule_data["settings"].update(PENALTY_SETTINGS)
 
-
-    # --- Facilities ---
     facility_ids = []
     for i in range(NUM_FACILITIES):
         facility_id = f"F{i+1:03d}"
@@ -70,53 +75,88 @@ def generate_schedule_data():
             "cleaning_capacity_tasks_per_hour_per_employee": random.randint(3, 8)
         })
 
-    # --- Employees ---
     employee_main_list_for_overtime = []
     for i in range(NUM_EMPLOYEES):
         emp_id = f"E{i+1:03d}"
         cost_per_hour = round(random.uniform(*COST_PER_HOUR_RANGE), 2)
-        
         num_prefs = random.randint(*NUM_PREFERRED_FACILITIES_RANGE)
         num_prefs = min(num_prefs, len(facility_ids))
         preferred_facilities = random.sample(facility_ids, num_prefs)
 
         availability = []
-        for day_name in DAYS_OF_WEEK_ORDER:
-            num_slots_today = random.randint(*AVAILABILITY_SLOTS_PER_DAY_RANGE)
-            current_day_slots = []
-            for _ in range(num_slots_today):
-                while True: # 重複しないスロットを生成する試み
-                    start_hour = random.randint(*AVAILABILITY_START_HOUR_RANGE)
-                    duration = random.randint(*AVAILABILITY_DURATION_HOURS_RANGE)
-                    end_hour = start_hour + duration
-                    end_hour = min(end_hour, 23) 
-                    
-                    if end_hour <= start_hour: end_hour = start_hour + 1 
-                    end_hour = min(end_hour, 23)
+        num_preferred_work_days_this_week = random.randint(
+            CONTRACT_MAX_DAYS_PER_WEEK_RANGE[0], 
+            CONTRACT_MAX_DAYS_PER_WEEK_RANGE[1]
+        )
+        preferred_work_days_indices = sorted(random.sample(range(len(DAYS_OF_WEEK_ORDER)), num_preferred_work_days_this_week))
+        
+        for day_idx, day_name in enumerate(DAYS_OF_WEEK_ORDER):
+            if day_idx not in preferred_work_days_indices and random.random() > 0.1:
+                continue
 
-                    if start_hour < end_hour:
-                        new_slot = {"day_of_week": day_name, "start_time": format_time(start_hour), "end_time": format_time(end_hour)}
-                        # 簡単な重複チェック (より厳密なものは複雑になる)
-                        is_overlapping = False
-                        for existing_slot in current_day_slots:
-                            existing_start = int(existing_slot["start_time"][:2])
-                            existing_end = int(existing_slot["end_time"][:2])
-                            if max(start_hour, existing_start) < min(end_hour, existing_end):
-                                is_overlapping = True
-                                break
-                        if not is_overlapping:
-                            current_day_slots.append(new_slot)
-                            availability.append(new_slot)
-                            break # 有効なスロットが見つかった
-                    # 無限ループを避けるため、一定回数試行してダメなら諦めるなどのロジックも検討可
+            current_day_slots_for_emp = [] 
+
+            if random.random() < PROBABILITY_COMMON_SHIFT:
+                chosen_shift = random.choice(COMMON_SHIFTS)
+                start_h, end_h = chosen_shift["start"], chosen_shift["end"]
+            else:
+                start_h = random.randint(*RANDOM_AVAILABILITY_START_HOUR_RANGE) # 修正
+                duration = random.randint(*RANDOM_AVAILABILITY_DURATION_HOURS_RANGE) # 修正
+                end_h = start_h + duration
             
-        if not availability: # フォールバック
+            if start_h < 24:
+                actual_end_h_today = min(end_h, 24)
+                if start_h < actual_end_h_today:
+                    slot_today = (start_h, actual_end_h_today)
+                    is_overlapping = any(max(slot_today[0], s[0]) < min(slot_today[1], s[1]) for s in current_day_slots_for_emp)
+                    if not is_overlapping:
+                        availability.append({
+                            "day_of_week": day_name,
+                            "start_time": format_time(start_h),
+                            "end_time": format_time(actual_end_h_today)
+                        })
+                        current_day_slots_for_emp.append(slot_today)
+
+            if end_h > 24:
+                start_h_tomorrow = 0
+                end_h_tomorrow = end_h % 24
+                next_day_idx = (day_idx + 1) % len(DAYS_OF_WEEK_ORDER)
+                next_day_name = DAYS_OF_WEEK_ORDER[next_day_idx]
+                if start_h_tomorrow < end_h_tomorrow:
+                    availability.append({
+                        "day_of_week": next_day_name,
+                        "start_time": format_time(start_h_tomorrow),
+                        "end_time": format_time(end_h_tomorrow)
+                    })
+
+            if random.random() < PROBABILITY_SECOND_SLOT and len(current_day_slots_for_emp) < 2 :
+                for _ in range(5): 
+                    start_h2 = random.randint(*RANDOM_AVAILABILITY_START_HOUR_RANGE) # ★修正
+                    duration2 = random.randint(*RANDOM_AVAILABILITY_DURATION_HOURS_RANGE) # ★修正
+                    end_h2 = start_h2 + duration2
+                    end_h2 = min(end_h2, 24)
+
+                    if start_h2 < end_h2:
+                        slot2 = (start_h2, end_h2)
+                        is_overlapping = any(max(slot2[0], s[0]) < min(slot2[1], s[1]) for s in current_day_slots_for_emp)
+                        if not is_overlapping:
+                            availability.append({
+                                "day_of_week": day_name,
+                                "start_time": format_time(start_h2),
+                                "end_time": format_time(end_h2)
+                            })
+                            current_day_slots_for_emp.append(slot2)
+                            break
+
+        if not availability:
             day_name = random.choice(DAYS_OF_WEEK_ORDER)
-            start_hour = random.randint(8, 12) 
-            duration = random.randint(4, 8)
-            end_hour = min(start_hour + duration, 23)
-            if start_hour < end_hour:
-                 availability.append({"day_of_week": day_name, "start_time": format_time(start_hour), "end_time": format_time(end_hour)})
+            chosen_shift = random.choice(COMMON_SHIFTS)
+            start_h, end_h = chosen_shift["start"], chosen_shift["end"]
+            if start_h < 24:
+                availability.append({"day_of_week": day_name, "start_time": format_time(start_h), "end_time": format_time(min(end_h, 24))})
+            if end_h > 24:
+                next_day_idx = (DAYS_OF_WEEK_ORDER.index(day_name) + 1) % len(DAYS_OF_WEEK_ORDER)
+                availability.append({"day_of_week": DAYS_OF_WEEK_ORDER[next_day_idx], "start_time": format_time(0), "end_time": format_time(end_h % 24)})
 
         employee_data = {
             "id": emp_id, "cost_per_hour": cost_per_hour, "preferred_facilities": preferred_facilities,
@@ -127,7 +167,6 @@ def generate_schedule_data():
         schedule_data["employees"].append(employee_data)
         employee_main_list_for_overtime.append({"id": emp_id, "base_cost": cost_per_hour})
 
-    # --- Overtime LP ---
     schedule_data["overtime_lp"]["total_overtime_hours"] = random.randint(*TOTAL_OVERTIME_HOURS_RANGE)
     overtime_employees = []
     for emp_info in employee_main_list_for_overtime:
@@ -140,15 +179,12 @@ def generate_schedule_data():
     return schedule_data
 
 def generate_cleaning_tasks_data_for_input(settings_data, facilities_data):
-    # settings_data から必要な情報を取得
     planning_start_date_str = settings_data["planning_start_date"]
     num_days_in_planning_period = settings_data["num_days_in_planning_period"]
     days_of_week_order = settings_data["days_of_week_order"]
-
     cleaning_tasks = {}
     start_date_obj = datetime.datetime.strptime(planning_start_date_str, "%Y-%m-%d").date()
     all_dates_in_period = [start_date_obj + datetime.timedelta(days=i) for i in range(num_days_in_planning_period)]
-
     for facility in facilities_data:
         facility_id = facility["id"]
         cleaning_tasks[facility_id] = {}
@@ -157,11 +193,9 @@ def generate_cleaning_tasks_data_for_input(settings_data, facilities_data):
             day_name = days_of_week_order[date_obj.weekday()]
             date_str = date_obj.strftime("%Y-%m-%d")
             tasks_by_day_of_week[day_name][date_str] = random.randint(*CLEANING_TASKS_PER_DAY_RANGE)
-        
         for day_name_key, date_tasks_map in tasks_by_day_of_week.items():
             if date_tasks_map:
                  cleaning_tasks[facility_id][day_name_key] = date_tasks_map
-
         if random.choice([True, False]):
             cleaning_tasks[facility_id]["default_tasks_for_day_of_week"] = {}
             for day_name in days_of_week_order:
@@ -170,21 +204,15 @@ def generate_cleaning_tasks_data_for_input(settings_data, facilities_data):
     return cleaning_tasks
 
 if __name__ == "__main__":
-    # スケジュール関連のデータを生成
     schedule_part = generate_schedule_data()
-    
-    # 清掃タスクデータを生成 (スケジュールデータのsettingsとfacilitiesを使用)
     cleaning_part = generate_cleaning_tasks_data_for_input(
         schedule_part["settings"], 
         schedule_part["facilities"]
     )
-    
-    # 1つのJSONに統合
     combined_data = {
         "schedule_input": schedule_part,
         "cleaning_tasks_input": cleaning_part
     }
-    
     output_filename = "generated_combined_input_data.json"
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(combined_data, f, indent=2, ensure_ascii=False)

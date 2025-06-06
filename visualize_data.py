@@ -1,8 +1,10 @@
 import json
 import pandas as pd
 import datetime
-import os # ファイルパス操作用
+import os
+import math # ★ この行を追加
 
+HOURS_IN_DAY = 24 # solve_new.py と合わせる
 OUTPUT_DIR = "visualization_output" # CSVファイルを出力するディレクトリ
 
 def ensure_output_dir():
@@ -11,8 +13,7 @@ def ensure_output_dir():
         os.makedirs(OUTPUT_DIR)
 
 def load_json_file(filepath):
-    """JSONファイルを複数のエンコーディングで読み込み試行する"""
-    encodings_to_try = ['utf-8-sig', 'utf-8', 'utf-16'] # BOM付きUTF-8を最初に試す
+    encodings_to_try = ['utf-8-sig', 'utf-8', 'utf-16']
     for encoding in encodings_to_try:
         try:
             with open(filepath, 'r', encoding=encoding) as f:
@@ -22,17 +23,16 @@ def load_json_file(filepath):
                 return data
         except UnicodeDecodeError:
             print(f"情報: ファイル '{filepath}' のエンコーディング '{encoding}' でのデコードに失敗。")
-            continue # 次のエンコーディングを試す
+            continue
         except FileNotFoundError:
             print(f"エラー: ファイル '{filepath}' が見つかりません。")
             return None
         except json.JSONDecodeError:
             print(f"エラー: ファイル '{filepath}' のJSON形式が正しくありません (エンコーディング: {encoding})。")
-            return None # JSON形式エラーの場合は他のエンコーディングを試しても無駄なので終了
+            return None
         except Exception as e:
             print(f"エラー: ファイル '{filepath}' の読み込み中に予期せぬエラーが発生しました (エンコーディング: {encoding}): {e}")
-            return None # その他の予期せぬエラー
-
+            return None
     print(f"エラー: ファイル '{filepath}' をサポートされているエンコーディングで読み込めませんでした。")
     return None
 
@@ -195,6 +195,161 @@ def create_facility_cleaning_capacity_df(input_schedule_data):
         return pd.DataFrame()
     return pd.DataFrame(facilities_info)
 
+def create_employee_availability_request_df(input_schedule_data):
+    """従業員のシフトリクエスト(勤務可能時間)のDataFrameを作成する"""
+    if 'employees' not in input_schedule_data or not input_schedule_data['employees']:
+        print("従業員データが見つかりません。")
+        return pd.DataFrame()
+
+    employees = input_schedule_data['employees']
+    settings = input_schedule_data.get('settings', {})
+    start_date_str = settings.get('planning_start_date')
+    num_days = settings.get('num_days_in_planning_period')
+    days_of_week_order = settings.get('days_of_week_order', ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+
+    if not start_date_str or not num_days:
+        print("入力データから日付情報を取得できませんでした。")
+        return pd.DataFrame()
+    try:
+        start_date_obj = datetime.datetime.strptime(start_date_str, "%Y-%m-%d").date()
+    except ValueError:
+        print(f"日付形式エラー: {start_date_str}")
+        return pd.DataFrame()
+
+    dates = [(start_date_obj + datetime.timedelta(days=i)) for i in range(num_days)]
+    date_columns = [f"{d.strftime('%Y-%m-%d')}\n({days_of_week_order[d.weekday()]})" for d in dates]
+
+    employee_ids = sorted([emp['id'] for emp in employees])
+    if not employee_ids:
+        print("従業員IDリストを作成できませんでした。")
+        return pd.DataFrame()
+
+    availability_df_data_dict = {col: [""] * len(employee_ids) for col in date_columns}
+    availability_df = pd.DataFrame(availability_df_data_dict, index=employee_ids)
+    availability_df.index.name = "従業員ID"
+
+    for emp_data in employees:
+        emp_id = emp_data['id']
+        if emp_id not in availability_df.index:
+            continue
+        
+        availability_by_day_of_week = {day: [] for day in days_of_week_order}
+        for slot in emp_data.get('availability', []):
+            dow = slot.get('day_of_week')
+            start_time = slot.get('start_time')
+            end_time = slot.get('end_time')
+            if dow and start_time and end_time:
+                availability_by_day_of_week[dow].append(f"{start_time}-{end_time}")
+
+        for day_idx, date_obj in enumerate(dates):
+            dow_str_key = days_of_week_order[date_obj.weekday()]
+            col_name = date_columns[day_idx] # 正しい列名
+            
+            if dow_str_key in availability_by_day_of_week and availability_by_day_of_week[dow_str_key]:
+                availability_df.loc[emp_id, col_name] = "\n".join(availability_by_day_of_week[dow_str_key])
+            # else: # リクエストがない日は空文字のまま
+                # availability_df.loc[emp_id, col_name] = "-" # またはハイフンなど
+
+    return availability_df
+
+
+def create_facility_coverage_status_df(solution_data, input_schedule_data, cleaning_tasks_data):
+    """施設の常駐義務充足状況のDataFrameを作成する"""
+    if 'facilities' not in input_schedule_data or not input_schedule_data['facilities']:
+        print("施設データが見つかりません。")
+        return pd.DataFrame()
+    if not solution_data or 'schedule_result' not in solution_data or \
+       not solution_data['schedule_result'] or 'assignments' not in solution_data['schedule_result']:
+        print("シフトアサインデータが見つかりません。常駐状況は確認できません。")
+        return pd.DataFrame() # アサインがないと充足状況は不明
+
+    facilities = input_schedule_data['facilities']
+    assignments = solution_data['schedule_result']['assignments']
+    settings = input_schedule_data.get('settings', {})
+    start_date_str = settings.get('planning_start_date')
+    num_days = settings.get('num_days_in_planning_period')
+    days_of_week_order = settings.get('days_of_week_order', ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+    cleaning_start_h = settings.get('cleaning_shift_start_hour', 10)
+    cleaning_end_h = settings.get('cleaning_shift_end_hour', 15)
+
+    if not start_date_str or not num_days:
+        print("入力データから日付情報を取得できませんでした。")
+        return pd.DataFrame()
+    try:
+        start_date_obj = datetime.datetime.strptime(start_date_str, "%Y-%m-%d").date()
+    except ValueError:
+        print(f"日付形式エラー: {start_date_str}")
+        return pd.DataFrame()
+
+    dates = [(start_date_obj + datetime.timedelta(days=i)) for i in range(num_days)]
+    date_columns = [f"{d.strftime('%Y-%m-%d')}\n({days_of_week_order[d.weekday()]})" for d in dates]
+
+    facility_ids = sorted([f['id'] for f in facilities])
+    if not facility_ids:
+        print("施設IDリストを作成できませんでした。")
+        return pd.DataFrame()
+
+    coverage_df_data_dict = {col: [""] * len(facility_ids) for col in date_columns}
+    coverage_df = pd.DataFrame(coverage_df_data_dict, index=facility_ids)
+    coverage_df.index.name = "施設ID"
+
+    # 日付、施設、時間ごとの実際のアサイン人数を事前に集計
+    actual_staffing = {} # (date_str, facility_id, hour) -> count
+    for assign in assignments:
+        assign_date_str = assign['date']
+        facility_id = assign['facility_id']
+        for hour in range(assign['start_hour'], assign['end_hour']):
+            key = (assign_date_str, facility_id, hour)
+            actual_staffing[key] = actual_staffing.get(key, 0) + 1
+
+    for fac_data in facilities:
+        fac_id = fac_data['id']
+        if fac_id not in coverage_df.index:
+            continue
+        
+        cleaning_capacity_per_hr = fac_data.get('cleaning_capacity_tasks_per_hour_per_employee', 1)
+        if cleaning_capacity_per_hr <= 0: cleaning_capacity_per_hr = 1
+        cleaning_hours_duration = cleaning_end_h - cleaning_start_h
+
+        for day_idx, date_obj in enumerate(dates):
+            date_str_key = date_obj.strftime("%Y-%m-%d")
+            col_name = date_columns[day_idx]
+            
+            shortage_details = []
+            # この日のこの施設の清掃タスク数を取得 (visualize_data.py内での get_cleaning_tasks_for_day_facility 相当)
+            daily_cleaning_tasks = 0
+            if cleaning_tasks_data and fac_id in cleaning_tasks_data:
+                fac_task_data = cleaning_tasks_data[fac_id]
+                dow_str_key = days_of_week_order[date_obj.weekday()]
+                if dow_str_key in fac_task_data and date_str_key in fac_task_data[dow_str_key]:
+                     daily_cleaning_tasks = fac_task_data[dow_str_key][date_str_key]
+                elif "default_tasks_for_day_of_week" in fac_task_data and dow_str_key in fac_task_data["default_tasks_for_day_of_week"]:
+                     daily_cleaning_tasks = fac_task_data["default_tasks_for_day_of_week"][dow_str_key]
+
+
+            for hour in range(HOURS_IN_DAY):
+                required_staff_target = 1 # デフォルト
+                if cleaning_start_h <= hour < cleaning_end_h: # 清掃時間
+                    if cleaning_hours_duration > 0 and daily_cleaning_tasks > 0:
+                        required_staff_target = max(1, math.ceil(
+                            daily_cleaning_tasks / (cleaning_capacity_per_hr * cleaning_hours_duration)
+                        ))
+                    # else: 清掃タスク0でも最低1名は必要なので required_staff_target は 1 のまま
+                
+                current_staff = actual_staffing.get((date_str_key, fac_id, hour), 0)
+                
+                if current_staff < required_staff_target:
+                    shortage = required_staff_target - current_staff
+                    shortage_details.append(f"{hour:02d}:00 (不足{shortage}, 要{required_staff_target})")
+            
+            if not shortage_details:
+                coverage_df.loc[fac_id, col_name] = "OK"
+            else:
+                coverage_df.loc[fac_id, col_name] = "\n".join(shortage_details)
+                
+    return coverage_df
+
+
 if __name__ == "__main__":
     ensure_output_dir()
 
@@ -209,11 +364,21 @@ if __name__ == "__main__":
     cleaning_tasks_data = combined_input.get("cleaning_tasks_input")
 
     if not input_schedule_data: print("エラー: 'schedule_input' が入力データに含まれていません。"); exit()
-    if not cleaning_tasks_data: print("エラー: 'cleaning_tasks_input' が入力データに含まれていません。"); 
+    # cleaning_tasks_data は optional とする (エラーにしない)
 
     print(f"\n--- 解答データ ({solution_file}) 読み込み ---")
     solution_data = load_json_file(solution_file)
+    # solution_data がなくても他の処理は実行
 
+    # 1. 従業員のシフトリクエスト表
+    print("\n--- 従業員シフトリクエスト表 生成中 ---")
+    availability_df = create_employee_availability_request_df(input_schedule_data)
+    if not availability_df.empty:
+        save_df_to_csv(availability_df, "employee_availability_requests.csv", index=True)
+    else:
+        print("従業員シフトリクエストデータから有効なDataFrameを作成できませんでした。")
+
+    # 2. シフトアサイン表
     print("\n--- シフトアサイン表 生成中 ---")
     if solution_data:
         assignments_df = create_shift_assignments_df(solution_data, input_schedule_data)
@@ -224,6 +389,21 @@ if __name__ == "__main__":
     else:
         print(f"{solution_file} が読み込めなかったため、シフトアサイン表は生成されません。")
 
+    # 3. 施設の常駐義務充足状況表
+    print("\n--- 施設常駐義務充足状況表 生成中 ---")
+    if solution_data and cleaning_tasks_data : # solution と cleaning_tasks 両方が必要
+        coverage_df = create_facility_coverage_status_df(solution_data, input_schedule_data, cleaning_tasks_data)
+        if not coverage_df.empty:
+            save_df_to_csv(coverage_df, "facility_coverage_status.csv", index=True)
+        else:
+            print("施設常駐義務充足状況データから有効なDataFrameを作成できませんでした。")
+    elif not solution_data:
+         print(f"{solution_file} が読み込めなかったため、施設常駐義務充足状況表は生成されません。")
+    elif not cleaning_tasks_data:
+         print(f"cleaning_tasks_data が読み込めなかったため、施設常駐義務充足状況表は生成されません。")
+
+
+    # 4. 施設表（清掃件数）
     print("\n--- 施設別 清掃件数表 生成中 ---")
     if cleaning_tasks_data:
         cleaning_tasks_df = create_cleaning_tasks_df(cleaning_tasks_data, input_schedule_data)
@@ -234,6 +414,7 @@ if __name__ == "__main__":
     else:
         print("清掃タスクデータがないため、施設別清掃件数表は生成されません。")
 
+    # 5. 施設の一時間あたりの清掃可能数
     print("\n--- 施設別 1時間あたり清掃可能数 生成中 ---")
     facility_capacity_df = create_facility_cleaning_capacity_df(input_schedule_data)
     if not facility_capacity_df.empty:

@@ -642,15 +642,8 @@ def local_main():
 
     add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] ローカル実行終了")
     
-    # ★ 最終的なJSON結果をファイルに直接UTF-8で書き出す
-    output_json_filepath = "solution.json" # 出力ファイル名を定義
-    try:
-        with open(output_json_filepath, 'w', encoding='utf-8') as f:
-            json.dump(_local_full_result_for_testing_only, f, indent=2, ensure_ascii=False)
-        print(f"結果を '{output_json_filepath}' に保存しました。", file=sys.stderr) # 標準エラーに進捗表示
-    except IOError as e:
-        print(f"エラー: 結果ファイル '{output_json_filepath}' の書き込みに失敗: {e}", file=sys.stderr)
-        # エラーが発生した場合でも、標準出力には何も出さない
+    # ★ 最終的なJSON結果のみを標準出力に出力
+    print(json.dumps(_local_full_result_for_testing_only, indent=2, ensure_ascii=False))
 
 if __name__ == '__main__':
     local_main()
