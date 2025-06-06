@@ -1,2 +1,2 @@
-ortools
-highspy
+ortools==9.*
+highspy>=1.11.0
