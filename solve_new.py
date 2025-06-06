@@ -221,11 +221,11 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
         ],
         "soft_constraints_settings": {
             "consecutive_days": {
-                "base_penalty": settings.get('consecutive_days_penalty', 50000),
+                "base_penalty": settings.get('consecutive_days_penalty', 20000),
                 "multiplier": penalty_multipliers.get("consecutive_days", 1.0)
             },
             "weekly_days": {
-                "base_penalty": settings.get('weekly_days_penalty', 40000),
+                "base_penalty": settings.get('weekly_days_penalty', 10000),
                 "multiplier": penalty_multipliers.get("weekly_days", 1.0)
             },
             "daily_hours": {
@@ -233,7 +233,7 @@ def solve_schedule(schedule_input_data, cleaning_tasks_data, retry_attempt=0, pe
                 "multiplier": penalty_multipliers.get("daily_hours", 1.0)
             },
             "staff_shortage": {
-                "base_penalty": settings.get('staff_shortage_penalty', 100000),
+                "base_penalty": settings.get('staff_shortage_penalty', 50000),
                 "multiplier": penalty_multipliers.get("staff_shortage", 1.0)
             }
         }
