@@ -3,33 +3,33 @@ import random
 import datetime
 
 # --- 設定パラメータ ---
-NUM_FACILITIES = 50  # 問題文の「50棟の施設」より
-NUM_EMPLOYEES = 120  # 例: 施設数の1.5～3倍程度が良いでしょう
-PLANNING_START_DATE_STR = "2024-07-01"  # 計画開始日
+NUM_FACILITIES = 48  # 実際に合わせる
+NUM_EMPLOYEES = 350  # 実際に合わせる
+PLANNING_START_DATE_STR = "2025-06-09"  # 計画開始日
 NUM_DAYS_IN_PLANNING_PERIOD = 7      # 例: 1週間 (7, 14, 30など)
 DAYS_OF_WEEK_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-MAX_CONSECUTIVE_WORK_DAYS_RANGE = (4, 6) # 連続勤務日数の上限（範囲）
-TIME_LIMIT_SEC = 180                     # ソルバーの計算時間制限
+MAX_CONSECUTIVE_WORK_DAYS_RANGE = (3, 6) # 連続勤務日数の上限（範囲）
+TIME_LIMIT_SEC = 1800                     # ソルバーの計算時間制限
 CLEANING_SHIFT_START_HOUR = 10
 CLEANING_SHIFT_END_HOUR = 15
 
 # 従業員関連の範囲設定
-COST_PER_HOUR_RANGE = (1200.0, 2500.0)  # 時給（例: 円）
-NUM_PREFERRED_FACILITIES_RANGE = (1, 5) # 従業員が希望する施設数の範囲
-AVAILABILITY_SLOTS_PER_DAY_RANGE = (0, 2) # 1日の勤務可能時間帯の数（0は非番）
-AVAILABILITY_START_HOUR_RANGE = (6, 15)   # 勤務開始可能時間の範囲 (例: 6時～15時)
-AVAILABILITY_DURATION_HOURS_RANGE = (4, 10) # 1つの勤務時間帯の長さの範囲
+COST_PER_HOUR_RANGE = (1200.0, 1500.0)  # 時給（例: 円）
+NUM_PREFERRED_FACILITIES_RANGE = (1, 7) # 従業員が希望する施設数の範囲
+AVAILABILITY_SLOTS_PER_DAY_RANGE = (0, 2) # 1日の勤務可能時間帯の数（0は非番）同日の重複申請
+AVAILABILITY_START_HOUR_RANGE = (8, 23)   # 勤務開始可能時間の範囲 (例: 6時～15時)
+AVAILABILITY_DURATION_HOURS_RANGE = (5, 8) # 1つの勤務時間帯の長さの範囲
 CONTRACT_MAX_DAYS_PER_WEEK_RANGE = (3, 5)   # 週の契約最大労働日数
 CONTRACT_MAX_HOURS_PER_DAY_RANGE = (6, 10)    # 1日の契約最大労働時間
 
 # 残業関連の範囲設定
-TOTAL_OVERTIME_HOURS_RANGE = (50, 200) # 計画期間中の総残業時間の目標範囲
+TOTAL_OVERTIME_HOURS_RANGE = (0, 500) # 計画期間中の総残業時間の目標範囲
 OVERTIME_COST_MULTIPLIER_RANGE = (1.25, 2.0) # 通常時給に対する残業時給の倍率
-MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE = (5, 15) # 従業員1人あたりの最大残業時間（計画期間中）
+MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE = (0, 5) # 従業員1人あたりの最大残業時間（計画期間中）
 
 # 清掃タスク関連の範囲設定
-CLEANING_TASKS_PER_DAY_RANGE = (10, 60) # 1日あたりの清掃タスク数の範囲
-DEFAULT_CLEANING_TASKS_PER_DAY_OF_WEEK_RANGE = (15, 50) # 曜日ごとのデフォルトタスク数
+CLEANING_TASKS_PER_DAY_RANGE = (1, 158) # 1日あたりの清掃タスク数の範囲
+DEFAULT_CLEANING_TASKS_PER_DAY_OF_WEEK_RANGE = (1, 158) # 曜日ごとのデフォルトタスク数
 
 # --- ヘルパー関数 ---
 def format_time(hour):
