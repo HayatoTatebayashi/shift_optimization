@@ -17,15 +17,15 @@ CLEANING_SHIFT_END_HOUR = 15
 COST_PER_HOUR_RANGE = (1200.0, 1500.0)  # 時給（例: 円）
 NUM_PREFERRED_FACILITIES_RANGE = (1, 7) # 従業員が希望する施設数の範囲
 # AVAILABILITY_SLOTS_PER_DAY_RANGE = (0, 2) # 1日の勤務可能時間帯の数（0は非番）同日の重複申請
-RANDOM_AVAILABILITY_START_HOUR_RANGE  = (8, 23)   # 勤務開始可能時間の範囲 (例: 6時～15時)
+RANDOM_AVAILABILITY_START_HOUR_RANGE  = (8, 22)   # 勤務開始可能時間の範囲 (例: 6時～15時)
 RANDOM_AVAILABILITY_DURATION_HOURS_RANGE = (5, 8) # 1つの勤務時間帯の長さの範囲
-CONTRACT_MAX_DAYS_PER_WEEK_RANGE = (3, 5)   # 週の契約最大労働日数
-CONTRACT_MAX_HOURS_PER_DAY_RANGE = (6, 10)    # 1日の契約最大労働時間
+CONTRACT_MAX_DAYS_PER_WEEK_RANGE = (2, 5)   # 週の契約最大労働日数
+CONTRACT_MAX_HOURS_PER_DAY_RANGE = (5, 8)    # 1日の契約最大労働時間
 
 # 残業関連の範囲設定
 TOTAL_OVERTIME_HOURS_RANGE = (0, 500) # 計画期間中の総残業時間の目標範囲
-OVERTIME_COST_MULTIPLIER_RANGE = (1.25, 2.0) # 通常時給に対する残業時給の倍率
-MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE = (0, 5) # 従業員1人あたりの最大残業時間（計画期間中）
+OVERTIME_COST_MULTIPLIER_RANGE = (1.25, 1.5) # 通常時給に対する残業時給の倍率
+MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE = (0, 8) # 従業員1人あたりの最大残業時間（計画期間中）
 
 # 清掃タスク関連の範囲設定
 CLEANING_TASKS_PER_DAY_RANGE = (1, 158) # 1日あたりの清掃タスク数の範囲
@@ -44,8 +44,20 @@ PENALTY_SETTINGS = {
 COMMON_SHIFTS = [
     {"name": "Day", "start": 9, "end": 17},      # 9:00 - 17:00 (8h)
     {"name": "Evening", "start": 17, "end": 22}, # 17:00 - 22:00 (5h)
+    {"name": "Evening", "start": 10, "end": 15}, # 10:00 - 15:00 (5h)
     {"name": "Night", "start": 22, "end": 33}    # 22:00 - 翌9:00 (11h), end は 24 + 9 で表現
 ]
+
+DAY_SHIFTS = [
+    {"name": "Day", "start": 9, "end": 17},
+    {"name": "Evening", "start": 17, "end": 22},
+    {"name": "Evening", "start": 10, "end": 15}
+]
+NIGHT_SHIFT = {"name": "Night", "start": 22, "end": 33}  # 22:00-9:00固定
+NIGHT_SHIFT_PROBABILITY = 0.3  # 30%の確率で夜勤シフト
+
+# 夜勤が翌日何時まで続くかのデフォルト (例: 9時 = 8時台まで勤務)
+DEFAULT_NIGHT_SHIFT_CONTINUES_UNTIL_HOUR = 9
 # 主要シフトを選ぶ確率 (例: 80%)
 PROBABILITY_COMMON_SHIFT = 0.8
 # 1日に複数のスロットをリクエストする確率 (主要シフトが選ばれた後、さらに追加する確率)
@@ -55,7 +67,9 @@ PROBABILITY_SECOND_SLOT = 0.1
 def format_time(hour):
     return f"{hour % 24:02d}:00"
 
+# --- 入力データ生成関数 ---
 def generate_schedule_data():
+    # スケジュールデータの初期化
     schedule_data = {"settings": {}, "facilities": [], "employees": [], "overtime_lp": {}}
     schedule_data["settings"]["planning_start_date"] = PLANNING_START_DATE_STR
     schedule_data["settings"]["num_days_in_planning_period"] = NUM_DAYS_IN_PLANNING_PERIOD
@@ -66,6 +80,7 @@ def generate_schedule_data():
     schedule_data["settings"]["cleaning_shift_end_hour"] = CLEANING_SHIFT_END_HOUR
     schedule_data["settings"].update(PENALTY_SETTINGS)
 
+    # 施設データの生成
     facility_ids = []
     for i in range(NUM_FACILITIES):
         facility_id = f"F{i+1:03d}"
@@ -75,6 +90,7 @@ def generate_schedule_data():
             "cleaning_capacity_tasks_per_hour_per_employee": random.randint(3, 8)
         })
 
+    # 従業員データの生成
     employee_main_list_for_overtime = []
     for i in range(NUM_EMPLOYEES):
         emp_id = f"E{i+1:03d}"
@@ -83,81 +99,83 @@ def generate_schedule_data():
         num_prefs = min(num_prefs, len(facility_ids))
         preferred_facilities = random.sample(facility_ids, num_prefs)
 
+        # 勤務可能時間帯の生成
         availability = []
         num_preferred_work_days_this_week = random.randint(
-            CONTRACT_MAX_DAYS_PER_WEEK_RANGE[0], 
+            CONTRACT_MAX_DAYS_PER_WEEK_RANGE[0],
             CONTRACT_MAX_DAYS_PER_WEEK_RANGE[1]
         )
         preferred_work_days_indices = sorted(random.sample(range(len(DAYS_OF_WEEK_ORDER)), num_preferred_work_days_this_week))
-        
+
         for day_idx, day_name in enumerate(DAYS_OF_WEEK_ORDER):
             if day_idx not in preferred_work_days_indices and random.random() > 0.1:
                 continue
 
-            current_day_slots_for_emp = [] 
+            current_day_slots_for_emp_tuples = [] # (start_hour, end_hour_abs) 重複チェック用
+            num_slots_for_today = 1
+            if random.random() < PROBABILITY_SECOND_SLOT:
+                num_slots_for_today = 2
 
-            if random.random() < PROBABILITY_COMMON_SHIFT:
-                chosen_shift = random.choice(COMMON_SHIFTS)
-                start_h, end_h = chosen_shift["start"], chosen_shift["end"]
-            else:
-                start_h = random.randint(*RANDOM_AVAILABILITY_START_HOUR_RANGE) # 修正
-                duration = random.randint(*RANDOM_AVAILABILITY_DURATION_HOURS_RANGE) # 修正
-                end_h = start_h + duration
-            
-            if start_h < 24:
-                actual_end_h_today = min(end_h, 24)
-                if start_h < actual_end_h_today:
-                    slot_today = (start_h, actual_end_h_today)
-                    is_overlapping = any(max(slot_today[0], s[0]) < min(slot_today[1], s[1]) for s in current_day_slots_for_emp)
-                    if not is_overlapping:
-                        availability.append({
-                            "day_of_week": day_name,
-                            "start_time": format_time(start_h),
-                            "end_time": format_time(actual_end_h_today)
-                        })
-                        current_day_slots_for_emp.append(slot_today)
+            for _ in range(num_slots_for_today):
+                slot_to_add = None
+                is_night_shift_flag = False
 
-            if end_h > 24:
-                start_h_tomorrow = 0
-                end_h_tomorrow = end_h % 24
-                next_day_idx = (day_idx + 1) % len(DAYS_OF_WEEK_ORDER)
-                next_day_name = DAYS_OF_WEEK_ORDER[next_day_idx]
-                if start_h_tomorrow < end_h_tomorrow:
-                    availability.append({
-                        "day_of_week": next_day_name,
-                        "start_time": format_time(start_h_tomorrow),
-                        "end_time": format_time(end_h_tomorrow)
-                    })
+                # 夜勤シフトの確率を直接制御
+                if random.random() < NIGHT_SHIFT_PROBABILITY:
+                    # 夜勤シフトを生成
+                    start_h_abs = NIGHT_SHIFT["start"]
+                    end_h_abs = NIGHT_SHIFT["end"]
+                    is_night_shift_flag = True
+                    # 夜勤の場合は2つ目のスロットを生成しない
+                    num_slots_for_today = 1
+                else:
+                    # 通常シフトを生成
+                    chosen_shift = random.choice(DAY_SHIFTS)
+                    start_h_abs = chosen_shift["start"]
+                    end_h_abs = chosen_shift["end"]                
+                
+                # 時間を 0-23 の範囲に正規化しつつ、日付またぎを判定
+                start_time_str = format_time(start_h_abs % 24)
+                end_time_str = format_time(end_h_abs % 24)
+                
+                current_slot_tuple = (start_h_abs, end_h_abs)
 
-            if random.random() < PROBABILITY_SECOND_SLOT and len(current_day_slots_for_emp) < 2 :
-                for _ in range(5): 
-                    start_h2 = random.randint(*RANDOM_AVAILABILITY_START_HOUR_RANGE) # ★修正
-                    duration2 = random.randint(*RANDOM_AVAILABILITY_DURATION_HOURS_RANGE) # ★修正
-                    end_h2 = start_h2 + duration2
-                    end_h2 = min(end_h2, 24)
+                # 重複チェック
+                is_overlapping = any(max(current_slot_tuple[0], s_tuple[0]) < min(current_slot_tuple[1], s_tuple[1]) 
+                                     for s_tuple in current_day_slots_for_emp_tuples)
 
-                    if start_h2 < end_h2:
-                        slot2 = (start_h2, end_h2)
-                        is_overlapping = any(max(slot2[0], s[0]) < min(slot2[1], s[1]) for s in current_day_slots_for_emp)
-                        if not is_overlapping:
-                            availability.append({
-                                "day_of_week": day_name,
-                                "start_time": format_time(start_h2),
-                                "end_time": format_time(end_h2)
-                            })
-                            current_day_slots_for_emp.append(slot2)
-                            break
+                if not is_overlapping and start_h_abs < end_h_abs : # start < end は絶対時間での比較
+                    slot_info = {
+                        "day_of_week": day_name,
+                        "start_time": start_time_str,
+                        "end_time": end_time_str
+                    }
+                    # is_night_shift フラグの判定: end_time が start_time より時刻として早い、または end_h_abs が24を超える場合
+                    # (例: start 22:00, end 09:00  または start 22:00, end_abs 33)
+                    if (int(end_time_str.split(':')[0]) < int(start_time_str.split(':')[0]) and end_h_abs > start_h_abs) or \
+                       (end_h_abs > 23 and start_h_abs < 24) or \
+                       is_night_shift_flag: # COMMON_SHIFTS からの指定も考慮
+                        slot_info["is_night_shift"] = True
+                    
+                    availability.append(slot_info)
+                    current_day_slots_for_emp_tuples.append(current_slot_tuple)
 
-        if not availability:
+        if not availability: # フォールバック
             day_name = random.choice(DAYS_OF_WEEK_ORDER)
             chosen_shift = random.choice(COMMON_SHIFTS)
-            start_h, end_h = chosen_shift["start"], chosen_shift["end"]
-            if start_h < 24:
-                availability.append({"day_of_week": day_name, "start_time": format_time(start_h), "end_time": format_time(min(end_h, 24))})
-            if end_h > 24:
-                next_day_idx = (DAYS_OF_WEEK_ORDER.index(day_name) + 1) % len(DAYS_OF_WEEK_ORDER)
-                availability.append({"day_of_week": DAYS_OF_WEEK_ORDER[next_day_idx], "start_time": format_time(0), "end_time": format_time(end_h % 24)})
-
+            start_h_abs, end_h_abs = chosen_shift["start"], chosen_shift["end"]
+            
+            slot_info = {
+                "day_of_week": day_name,
+                "start_time": format_time(start_h_abs % 24),
+                "end_time": format_time(end_h_abs % 24)
+            }
+            if (int(slot_info["end_time"].split(':')[0]) < int(slot_info["start_time"].split(':')[0]) and end_h_abs > start_h_abs) or \
+               (end_h_abs > 23 and start_h_abs < 24) or \
+               chosen_shift["name"] == "Night":
+                slot_info["is_night_shift"] = True
+            availability.append(slot_info)
+        
         employee_data = {
             "id": emp_id, "cost_per_hour": cost_per_hour, "preferred_facilities": preferred_facilities,
             "availability": availability,
@@ -167,6 +185,7 @@ def generate_schedule_data():
         schedule_data["employees"].append(employee_data)
         employee_main_list_for_overtime.append({"id": emp_id, "base_cost": cost_per_hour})
 
+    # 残業LPデータの生成
     schedule_data["overtime_lp"]["total_overtime_hours"] = random.randint(*TOTAL_OVERTIME_HOURS_RANGE)
     overtime_employees = []
     for emp_info in employee_main_list_for_overtime:
@@ -178,6 +197,7 @@ def generate_schedule_data():
     schedule_data["overtime_lp"]["employees"] = overtime_employees
     return schedule_data
 
+# --- 清掃タスクデータ生成関数 ---
 def generate_cleaning_tasks_data_for_input(settings_data, facilities_data):
     planning_start_date_str = settings_data["planning_start_date"]
     num_days_in_planning_period = settings_data["num_days_in_planning_period"]

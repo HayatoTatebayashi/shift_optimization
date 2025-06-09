@@ -130,23 +130,57 @@ def parse_time_to_int(full_result_ref, time_str): # full_result_ref を追加
         raise ValueError(f"無効な時間形式: {time_str}") from e
 
 def get_employee_availability_matrix(full_result_ref, employees_data, num_total_days, days_of_week_order, planning_start_date_obj): # full_result_ref を追加
-    availability_matrix = {}
+    availability_matrix = {} # (emp_idx, day_idx, hour_idx) -> True
+    night_shift_details_map = {}
+
     for emp_idx, emp in enumerate(employees_data):
         for avail_slot in emp.get('availability', []):
             try:
                 day_of_week_spec = avail_slot['day_of_week']
-                start_hour_int = parse_time_to_int(full_result_ref, avail_slot['start_time']) # full_result_ref を渡す
-                end_hour_int = parse_time_to_int(full_result_ref, avail_slot['end_time'])   # full_result_ref を渡す
-                for day_idx in range(num_total_days):
-                    current_date = planning_start_date_obj + datetime.timedelta(days=day_idx)
+                start_hour_int = parse_time_to_int(full_result_ref, avail_slot['start_time'])
+                end_hour_int = parse_time_to_int(full_result_ref, avail_slot['end_time'])
+                is_night_shift = avail_slot.get('is_night_shift', False)
+
+                for day_idx_in_planning in range(num_total_days): # 計画期間内のすべての日をチェック
+                    current_date = planning_start_date_obj + datetime.timedelta(days=day_idx_in_planning)
                     current_day_of_week_str = days_of_week_order[current_date.weekday()]
-                    if current_day_of_week_str == day_of_week_spec:
-                        for hour_idx in range(start_hour_int, end_hour_int):
-                            if 0 <= hour_idx < HOURS_IN_DAY:
-                                availability_matrix[(emp_idx, day_idx, hour_idx)] = True
+
+                    if current_day_of_week_str == day_of_week_spec: # スロットが定義された曜日と一致
+                        # この day_idx_in_planning がスロットの開始日
+                        if is_night_shift and end_hour_int < start_hour_int: # 日付またぎ夜勤
+                            # 当日分
+                            for h_today in range(start_hour_int, 24):
+                                if 0 <= h_today < HOURS_IN_DAY:
+                                    availability_matrix[(emp_idx, day_idx_in_planning, h_today)] = True
+                            # 翌日分 (計画期間内であれば)
+                            if day_idx_in_planning + 1 < num_total_days:
+                                next_day_idx_in_planning = day_idx_in_planning + 1
+                                for h_next_day in range(0, end_hour_int):
+                                    if 0 <= h_next_day < HOURS_IN_DAY:
+                                        availability_matrix[(emp_idx, next_day_idx_in_planning, h_next_day)] = True
+                                # 夜勤詳細を記録 (開始日基準)
+                                night_shift_details_map[(emp_idx, day_idx_in_planning)] = {
+                                    "start_hour_on_start_day": start_hour_int,
+                                    "end_hour_on_next_day": end_hour_int, # 翌日の終了時刻 (0-23)
+                                    "is_night_shift": True
+                                }
+                        else: # 通常の日中シフトまたは日付をまたがない夜勤 (例: 22:00-24:00)
+                            for hour_idx in range(start_hour_int, end_hour_int):
+                                if 0 <= hour_idx < HOURS_IN_DAY:
+                                    availability_matrix[(emp_idx, day_idx_in_planning, hour_idx)] = True
+                            if is_night_shift: # 日付はまたがないが夜勤フラグがついている場合
+                                night_shift_details_map[(emp_idx, day_idx_in_planning)] = {
+                                    "start_hour_on_start_day": start_hour_int,
+                                    "end_hour_on_start_day": end_hour_int,
+                                    "is_night_shift": True
+                                }
+
             except KeyError as e: add_log(full_result_ref, 'warnings', f"従業員 {emp.get('id', 'N/A')} の勤務可能時間データにキーエラー: {e}", {"employee_id": emp.get('id')})
             except ValueError as e: add_log(full_result_ref, 'warnings', f"従業員 {emp.get('id', 'N/A')} の時間関連データエラー: {e}", {"employee_id": emp.get('id')})
-    return availability_matrix
+    
+    # availability_matrix と night_shift_details_map を返す (あるいはタプルで)
+    return availability_matrix, night_shift_details_map
+
 
 def get_cleaning_tasks_for_day_facility(full_result_ref, facility_id_str, current_date_obj, cleaning_data_json, days_of_week_order): # full_result_ref を追加
     date_str = current_date_obj.strftime("%Y-%m-%d")
@@ -159,6 +193,7 @@ def get_cleaning_tasks_for_day_facility(full_result_ref, facility_id_str, curren
         if day_of_week_str in default_tasks: return default_tasks[day_of_week_str]
     except Exception as e: add_log(full_result_ref, 'warnings', f"清掃タスク取得中にエラー ({facility_id_str}, {date_str}): {e}", {"facility_id": facility_id_str, "date": date_str})
     return 0
+
 
 # ---------- 1. シフトスケジューリング (CP-SAT) ----------
 def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, time_limit_sec, retry_attempt=0, penalty_multipliers=None):
@@ -195,7 +230,7 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
     cleaning_end_h = settings['cleaning_shift_end_hour'] 
     cleaning_hours_duration = cleaning_end_h - cleaning_start_h
     
-    emp_avail_matrix = get_employee_availability_matrix(full_result_ref, employees_data, num_total_days, days_of_week_order, planning_start_date_obj)
+    emp_avail_matrix, night_shift_details_map = get_employee_availability_matrix(full_result_ref, employees_data, num_total_days, days_of_week_order, planning_start_date_obj) # ★変更
     add_log(full_result_ref, 'info', f"[{run_id}] 従業員の勤務可能時間マトリックス作成完了")
 
     emp_preferred_facilities_idx_sets = [
@@ -254,8 +289,9 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
 
 
     # --- ハード制約 ---
+
     add_log(full_result_ref, 'schedule', f"[{run_id}] ハード制約の追加開始")
-    # 1. 従業員の勤務可能時間と希望施設
+    # 〇 従業員の勤務可能時間と希望施設
     for f_idx in F_indices:
         for w_idx in W_indices:
             if emp_preferred_facilities_idx_sets[w_idx] and f_idx not in emp_preferred_facilities_idx_sets[w_idx]:
@@ -267,23 +303,164 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
                     if not emp_avail_matrix.get((w_idx, d_idx, h_idx), False):
                         model.Add(x[f_idx, w_idx, d_idx, h_idx] == 0)
     
-    # 2. 従業員は同時に1つの施設でのみ勤務可能
+    # 〇 従業員は同時に1つの施設でのみ勤務可能
     for w_idx in W_indices:
         for d_idx in D_indices:
             for h_idx in H_indices:
                 model.Add(sum(x[f_idx, w_idx, d_idx, h_idx] for f_idx in F_indices) <= 1)
 
-    # 3. works_on_day 変数の設定
+    # 〇 従業員がその日に1時間でも働いているか確認
+    # 連続勤務日数と週あたり勤務日数の計算
     for w_idx in W_indices:
         for d_idx in D_indices:
             hours_worked_this_day = sum(x[f_idx, w_idx, d_idx, h_idx] for f_idx in F_indices for h_idx in H_indices)
             model.Add(hours_worked_this_day > 0).OnlyEnforceIf(works_on_day[w_idx, d_idx])
             model.Add(hours_worked_this_day == 0).OnlyEnforceIf(works_on_day[w_idx, d_idx].Not())
+
+    # 〇 週最大40時間
+    MAX_WEEKLY_HOURS = 40
+    add_log(full_result_ref, 'schedule', f"[{run_id}] 週最大{MAX_WEEKLY_HOURS}時間制約の追加開始")
+    for w_idx in W_indices:
+        # 計画期間が1週間を超える場合、7日ごとのウィンドウでチェック
+        # 計画期間が7日以下の場合は、全期間でチェック
+        if num_total_days <= 7:
+            total_hours_in_period = sum(x[f_idx, w_idx, d_idx, h_idx]
+                                        for f_idx in F_indices
+                                        for d_idx in D_indices
+                                        for h_idx in H_indices)
+            model.Add(total_hours_in_period <= MAX_WEEKLY_HOURS)
+        else:
+            # スライディングウィンドウで7日間ごとの勤務時間をチェック
+            for week_start_day_idx in range(0, num_total_days, 7):
+                hours_in_week_segment = sum(x[f_idx, w_idx, d_idx, h_idx]
+                                            for f_idx in F_indices
+                                            for d_idx in range(week_start_day_idx, min(week_start_day_idx + 7, num_total_days))
+                                            for h_idx in H_indices)
+                model.Add(hours_in_week_segment <= MAX_WEEKLY_HOURS)
+
+    # 〇 勤務間インターバル8時間
+    MIN_REST_HOURS = 8
+    for w_idx in W_indices:
+        for d_idx in D_indices:
+            for h_idx in H_indices:
+                # 従業員wが日dの時間hにいずれかの施設で勤務しているか
+                works_at_d_h = model.NewBoolVar(f'works_w{w_idx}_d{d_idx}_h{h_idx}')
+                model.Add(sum(x[f_idx, w_idx, d_idx, h_idx] for f_idx in F_indices) >= 1).OnlyEnforceIf(works_at_d_h)
+                model.Add(sum(x[f_idx, w_idx, d_idx, h_idx] for f_idx in F_indices) == 0).OnlyEnforceIf(works_at_d_h.Not())
+
+                current_global_hour_idx = d_idx * HOURS_IN_DAY + h_idx
+
+                # この時間スロットが勤務終了時刻であるか (この時間は勤務、次の時間は非勤務)
+                is_end_of_shift_at_current_hour = model.NewBoolVar(f'is_end_w{w_idx}_g{current_global_hour_idx}')
+                
+                if current_global_hour_idx + 1 < num_total_days * HOURS_IN_DAY:
+                    next_global_hour_idx = current_global_hour_idx + 1
+                    next_d_idx_val = next_global_hour_idx // HOURS_IN_DAY
+                    next_h_idx_val = next_global_hour_idx % HOURS_IN_DAY
+                    
+                    works_at_next_hour = model.NewBoolVar(f'works_next_w{w_idx}_g{next_global_hour_idx}')
+                    model.Add(sum(x[f_idx, w_idx, next_d_idx_val, next_h_idx_val] for f_idx in F_indices) >= 1).OnlyEnforceIf(works_at_next_hour)
+                    model.Add(sum(x[f_idx, w_idx, next_d_idx_val, next_h_idx_val] for f_idx in F_indices) == 0).OnlyEnforceIf(works_at_next_hour.Not())
+                    
+                    # is_end_of_shift_at_current_hour <=> works_at_d_h AND (NOT works_at_next_hour)
+                    model.AddBoolAnd([works_at_d_h, works_at_next_hour.Not()]).OnlyEnforceIf(is_end_of_shift_at_current_hour)
+                    # (NOT is_end_of_shift_at_current_hour) も定義する必要がある
+                    # (NOT works_at_d_h) OR works_at_next_hour
+                    model.AddBoolOr([works_at_d_h.Not(), works_at_next_hour]).OnlyEnforceIf(is_end_of_shift_at_current_hour.Not())
+                else:
+                    # 計画期間の最後の時間スロットの場合、ここで勤務していればそれが終了
+                    model.Add(is_end_of_shift_at_current_hour == works_at_d_h)
+
+                # is_end_of_shift_at_current_hour が True なら、次の MIN_REST_HOURS -1 スロットは勤務不可
+                # (勤務終了スロットの「次」のスロットから MIN_REST_HOURS-1 個が休憩)
+                for rest_offset in range(1, MIN_REST_HOURS): # 1から7 (MIN_REST_HOURSが8の場合)
+                    rest_global_idx = current_global_hour_idx + rest_offset
+                    if rest_global_idx < num_total_days * HOURS_IN_DAY:
+                        rest_d = rest_global_idx // HOURS_IN_DAY
+                        rest_h = rest_global_idx % HOURS_IN_DAY
+                        for f_rest_idx in F_indices:
+                            model.Add(x[f_rest_idx, w_idx, rest_d, rest_h] == 0).OnlyEnforceIf(is_end_of_shift_at_current_hour)
+
+    # 〇 夜勤シフトの連続性保証 (日付またぎ)
+    # 例えば、22時または23時に勤務開始し、それが夜勤とみなされるパターンを定義
+    # 翌朝まで続いている場合に連続勤務を強制する
+    for w_idx in W_indices:
+        for d_idx in D_indices: # 夜勤の開始日 d_idx
+            night_shift_info = night_shift_details_map.get((w_idx, d_idx))
+            if night_shift_info and night_shift_info.get("is_night_shift") is True and \
+               "end_hour_on_next_day" in night_shift_info: # 日付をまたぐ夜勤の場合
+
+                start_h_today = night_shift_info["start_hour_on_start_day"]
+                end_h_next_day = night_shift_info["end_hour_on_next_day"]
+                
+                if d_idx + 1 < num_total_days: # 翌日が計画期間内であること
+                    next_d_idx = d_idx + 1
+                    for f_idx in F_indices:
+                        # この従業員がこの施設でこの夜勤を開始するかどうかを示すブール変数
+                        # (夜勤開始時刻から当日の23時まで勤務するかで判定)
+                        works_this_overnight_shift_at_f = model.NewBoolVar(f'works_overnight_w{w_idx}_f{f_idx}_d{d_idx}')
+                        
+                        # 当日の夜勤時間帯の勤務を変数リストに
+                        today_night_hours_vars = [x[f_idx, w_idx, d_idx, h] for h in range(start_h_today, 24)]
+                        
+                        # 翌日の夜勤時間帯の勤務を変数リストに
+                        next_day_early_hours_vars = [x[f_idx, w_idx, next_d_idx, h] for h in range(0, end_h_next_day)]
+
+                        # より正確には、この夜勤スロット（当日分＋翌日分）全体が割り当てられるか
+                        all_night_shift_hours_vars = today_night_hours_vars + next_day_early_hours_vars
+                        num_total_night_hours = len(all_night_shift_hours_vars)
+
+                        # 夜勤の最初の1時間に勤務があったら、その夜勤は最後まで同じ施設で継続
+                        first_hour_of_night_shift = x[f_idx, w_idx, d_idx, start_h_today]
+
+                        # 当日の残り時間
+                        for h_today in range(start_h_today + 1, 24):
+                            model.Add(x[f_idx, w_idx, d_idx, h_today] == 1).OnlyEnforceIf(first_hour_of_night_shift)
+                            # 他の施設では働けない
+                            for other_f_idx in F_indices:
+                                if other_f_idx != f_idx:
+                                    model.Add(x[other_f_idx, w_idx, d_idx, h_today] == 0).OnlyEnforceIf(first_hour_of_night_shift)
+                        
+                        # 翌日の継続時間
+                        for h_next_day in range(0, end_h_next_day):
+                            model.Add(x[f_idx, w_idx, next_d_idx, h_next_day] == 1).OnlyEnforceIf(first_hour_of_night_shift)
+                            # 他の施設では働けない
+                            for other_f_idx in F_indices:
+                                if other_f_idx != f_idx:
+                                    model.Add(x[other_f_idx, w_idx, next_d_idx, h_next_day] == 0).OnlyEnforceIf(first_hour_of_night_shift)
+
+    # 〇 同日内での施設変更禁止 (1リクエスト:1施設の近似)
+    add_log(full_result_ref, 'schedule', f"[{run_id}] 同日内施設変更禁止制約の追加開始")
+    for w_idx in W_indices:
+        for d_idx in D_indices:
+            # その日に従業員wが勤務する可能性のある施設をリストアップする変数
+
+            for h_idx in range(HOURS_IN_DAY - 1): # 0時から22時まで
+                next_h_idx = h_idx + 1
+                for f1_idx in F_indices:
+                    for f2_idx in F_indices:
+                        if f1_idx != f2_idx:
+                            # もし時間hに施設f1で勤務し、かつ時間h+1に施設f2で勤務するならば、それは許されない。
+                            # (x[f1,w,d,h] AND x[f2,w,d,h+1]) => False
+                            # <=> NOT (x[f1,w,d,h] AND x[f2,w,d,h+1])
+                            # <=> (NOT x[f1,w,d,h]) OR (NOT x[f2,w,d,h+1])
+                            # これは、AddBoolOr([x[f1,w,d,h].Not(), x[f2,w,d,h+1].Not()]) と等価
+                            
+                            # もっと直接的には、もし x[f1,w,d,h]=1 ならば、x[f2,w,d,h+1]=0 for all f2 != f1
+                            # これだと、hからh+1で施設が変わることを禁止する
+                            # 連続する2つの時間スロットで異なる施設にいることを禁止
+                            model.AddBoolOr([
+                                x[f1_idx, w_idx, d_idx, h_idx].Not(), 
+                                x[f2_idx, w_idx, d_idx, next_h_idx].Not()
+                            ])
+                            # 上記は (A and B) implies False.
+                            # もし時間hに施設f1で働き、かつ時間h+1に施設f2(f1と異なる)で働く、という組み合わせはダメ。
     
     add_log(full_result_ref, 'schedule', f"[{run_id}] 全てのハード制約の追加完了")
     add_model_stats_log(full_result_ref, model, 'schedule', f"[{run_id}] ハード制約追加後のモデル状態")
 
     # --- ソフト制約 ---
+
     soft_penalty_terms = []
     objective_terms = []
     
@@ -505,8 +682,9 @@ def solve_overtime_lp(full_result_ref, overtime_input_data):
 
 # ---------- HTTPトリガー関数 ----------
 @functions_framework.http
-def solve_shift_http(request):
+def shift_optimazation(request):
     """
+    cloud functions の HTTP トリガーとして動作する (必ずGUIでエントリポイントと関数名を揃える)
     HTTPリクエストに応じてシフトスケジューリングと残業配分を実行する関数。
     リクエストボディには combined_input_data.json と同様の構造のJSONを期待する。
     また、クエリパラメータで time_limit_sec を指定可能。

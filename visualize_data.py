@@ -6,6 +6,8 @@ import math # ★ この行を追加
 
 HOURS_IN_DAY = 24 # solve_new.py と合わせる
 OUTPUT_DIR = "visualization_output" # CSVファイルを出力するディレクトリ
+INPUT_FILE = "generated_combined_input_data.json"
+SOLUTION_DATA = "solution_from_cloud_run.json"
 
 def ensure_output_dir():
     """出力ディレクトリが存在しない場合は作成する"""
@@ -247,8 +249,8 @@ def create_employee_availability_request_df(input_schedule_data):
             
             if dow_str_key in availability_by_day_of_week and availability_by_day_of_week[dow_str_key]:
                 availability_df.loc[emp_id, col_name] = "\n".join(availability_by_day_of_week[dow_str_key])
-            # else: # リクエストがない日は空文字のまま
-                # availability_df.loc[emp_id, col_name] = "-" # またはハイフンなど
+            else: # リクエストがない日は空文字のまま
+                availability_df.loc[emp_id, col_name] = ""
 
     return availability_df
 
@@ -353,11 +355,8 @@ def create_facility_coverage_status_df(solution_data, input_schedule_data, clean
 if __name__ == "__main__":
     ensure_output_dir()
 
-    input_file = "generated_combined_input_data.json"
-    solution_file = "solution.json"
-
-    print(f"--- 入力データ ({input_file}) 読み込み ---")
-    combined_input = load_json_file(input_file)
+    print(f"--- 入力データ ({INPUT_FILE}) 読み込み ---")
+    combined_input = load_json_file(INPUT_FILE)
     if not combined_input: exit()
     
     input_schedule_data = combined_input.get("schedule_input")
@@ -366,8 +365,8 @@ if __name__ == "__main__":
     if not input_schedule_data: print("エラー: 'schedule_input' が入力データに含まれていません。"); exit()
     # cleaning_tasks_data は optional とする (エラーにしない)
 
-    print(f"\n--- 解答データ ({solution_file}) 読み込み ---")
-    solution_data = load_json_file(solution_file)
+    print(f"\n--- 解答データ ({SOLUTION_DATA}) 読み込み ---")
+    solution_data = load_json_file(SOLUTION_DATA)
     # solution_data がなくても他の処理は実行
 
     # 1. 従業員のシフトリクエスト表
@@ -387,7 +386,7 @@ if __name__ == "__main__":
         else:
             print("シフトアサインデータから有効なDataFrameを作成できませんでした。")
     else:
-        print(f"{solution_file} が読み込めなかったため、シフトアサイン表は生成されません。")
+        print(f"{SOLUTION_DATA} が読み込めなかったため、シフトアサイン表は生成されません。")
 
     # 3. 施設の常駐義務充足状況表
     print("\n--- 施設常駐義務充足状況表 生成中 ---")
@@ -398,7 +397,7 @@ if __name__ == "__main__":
         else:
             print("施設常駐義務充足状況データから有効なDataFrameを作成できませんでした。")
     elif not solution_data:
-         print(f"{solution_file} が読み込めなかったため、施設常駐義務充足状況表は生成されません。")
+         print(f"{SOLUTION_DATA} が読み込めなかったため、施設常駐義務充足状況表は生成されません。")
     elif not cleaning_tasks_data:
          print(f"cleaning_tasks_data が読み込めなかったため、施設常駐義務充足状況表は生成されません。")
 
