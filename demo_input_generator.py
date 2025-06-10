@@ -31,17 +31,37 @@ MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE = (0, 8) # 従業員1人あたりの最大
 CLEANING_TASKS_PER_DAY_RANGE = (1, 158) # 1日あたりの清掃タスク数の範囲
 DEFAULT_CLEANING_TASKS_PER_DAY_OF_WEEK_RANGE = (1, 158) # 曜日ごとのデフォルトタスク数
 
-# ペナルティ設定 (solve_new.pyで使われるが、入力に含めておくことも可能)
+# 夜勤が翌日何時まで続くかのデフォルト (例: 9時 = 8時台まで勤務)
+DEFAULT_NIGHT_SHIFT_CONTINUES_UNTIL_HOUR = 9
+# 主要シフトを選ぶ確率 (例: 80%)
+PROBABILITY_COMMON_SHIFT = 0.8
+# 1日に複数のスロットをリクエストする確率 (主要シフトが選ばれた後、さらに追加する確率)
+PROBABILITY_SECOND_SLOT = 0.1
+
+# --- デフォルトペナルティ設定 ---
 PENALTY_SETTINGS = {
-    "consecutive_days_penalty": 50000,
-    "weekly_days_penalty": 40000,
-    "daily_hours_penalty": 30000,
-    "staff_shortage_penalty": 100000
+    "consecutive_days_penalty": 50000, # 連続勤務日数のペナルティ
+    "weekly_days_penalty": 40000, # 週勤務日数超過のペナルティ
+    "daily_hours_penalty": 30000, # 1日勤務時間超過のペナルティ
+    "staff_shortage_penalty": 100000 , # スタッフ不足のペナルティ
 }
+# 施設ごとのペナルティ調整の例 (スタッフ不足ペナルティの乗数)
+FACILITY_STAFF_SHORTAGE_PENALTY_MULTIPLIER_RANGE = (0.5, 2.0) # デフォルトのペナルティに対する乗数
+
+# --- アサイン難易度スコア計算用パラメータ ---
+DIFFICULTY_SCORE_PARAMS = {
+    "base_score_per_hour": 1, # 基本スコア（1時間あたり）
+    "night_hour_multiplier": 1.5, # 夜勤時間帯のスコア倍率
+    "weekend_day_multiplier": 1.3, # 週末のスコア倍率
+    "global_difficulty_cost_multiplier": 0.1,  # グローバル難易度コスト倍率
+    "fairness_penalty_weight_difficulty": 1000  # 公平性ペナルティの重み（難易度スコア計算用）
+}
+# 深夜とみなす時間帯 (0-23時表記)
+NIGHT_HOURS_RANGE_FOR_DIFFICULTY = (22, 5) # 22時から翌朝5時 (5時台は含まない)
 
 
 # --- 主要シフトパターン ---
-COMMON_SHIFTS = [
+COMMON_SHIFTS = [ # 不使用
     {"name": "Day", "start": 9, "end": 17},      # 9:00 - 17:00 (8h)
     {"name": "Evening", "start": 17, "end": 22}, # 17:00 - 22:00 (5h)
     {"name": "Evening", "start": 10, "end": 15}, # 10:00 - 15:00 (5h)
@@ -55,13 +75,6 @@ DAY_SHIFTS = [
 ]
 NIGHT_SHIFT = {"name": "Night", "start": 22, "end": 33}  # 22:00-9:00固定
 NIGHT_SHIFT_PROBABILITY = 0.3  # 30%の確率で夜勤シフト
-
-# 夜勤が翌日何時まで続くかのデフォルト (例: 9時 = 8時台まで勤務)
-DEFAULT_NIGHT_SHIFT_CONTINUES_UNTIL_HOUR = 9
-# 主要シフトを選ぶ確率 (例: 80%)
-PROBABILITY_COMMON_SHIFT = 0.8
-# 1日に複数のスロットをリクエストする確率 (主要シフトが選ばれた後、さらに追加する確率)
-PROBABILITY_SECOND_SLOT = 0.1
 
 
 def format_time(hour):
@@ -78,23 +91,37 @@ def generate_schedule_data():
     schedule_data["settings"]["hours_in_day"] = 24
     schedule_data["settings"]["cleaning_shift_start_hour"] = CLEANING_SHIFT_START_HOUR
     schedule_data["settings"]["cleaning_shift_end_hour"] = CLEANING_SHIFT_END_HOUR
-    schedule_data["settings"].update(PENALTY_SETTINGS)
+    schedule_data["settings"].update(PENALTY_SETTINGS) # 定数辞書全体を挿入
+    schedule_data["settings"].update(DIFFICULTY_SCORE_PARAMS)
+    schedule_data["settings"]["NIGHT_HOURS_RANGE_FOR_DIFFICULTY"] = NIGHT_HOURS_RANGE_FOR_DIFFICULTY
 
     # 施設データの生成
     facility_ids = []
     for i in range(NUM_FACILITIES):
         facility_id = f"F{i+1:03d}"
         facility_ids.append(facility_id)
+        
+        # 施設ごとのカスタムペナルティ設定を追加
+        facility_penalty_overrides = {}
+        # 例: スタッフ不足ペナルティの乗数をランダムに設定
+        if random.random() < 0.3: # 30%の確率でカスタム乗数を設定
+            facility_penalty_overrides["staff_shortage_multiplier"] = \
+                round(random.uniform(*FACILITY_STAFF_SHORTAGE_PENALTY_MULTIPLIER_RANGE), 2)
+        # 他のソフト制約（例: 連続勤務のペナルティなど）も同様に追加可能だが現状の従業員単位の制約には不適用
+        # facility_penalty_overrides["consecutive_days_penalty"] = new_value 
+        # facility_penalty_overrides["daily_hours_multiplier"] = new_multiplier
+
         schedule_data["facilities"].append({
             "id": facility_id,
-            "cleaning_capacity_tasks_per_hour_per_employee": random.randint(3, 8)
+            "cleaning_capacity_tasks_per_hour_per_employee": random.randint(3, 8),
+            "penalty_overrides": facility_penalty_overrides # ★追加
         })
 
     # 従業員データの生成
     employee_main_list_for_overtime = []
     for i in range(NUM_EMPLOYEES):
         emp_id = f"E{i+1:03d}"
-        cost_per_hour = round(random.uniform(*COST_PER_HOUR_RANGE), 2)
+        # cost_per_hour = round(random.uniform(*COST_PER_HOUR_RANGE), 2)
         num_prefs = random.randint(*NUM_PREFERRED_FACILITIES_RANGE)
         num_prefs = min(num_prefs, len(facility_ids))
         preferred_facilities = random.sample(facility_ids, num_prefs)
@@ -177,24 +204,24 @@ def generate_schedule_data():
             availability.append(slot_info)
         
         employee_data = {
-            "id": emp_id, "cost_per_hour": cost_per_hour, "preferred_facilities": preferred_facilities,
+            "id": emp_id, "preferred_facilities": preferred_facilities,
             "availability": availability,
             "contract_max_days_per_week": random.randint(*CONTRACT_MAX_DAYS_PER_WEEK_RANGE),
             "contract_max_hours_per_day": random.randint(*CONTRACT_MAX_HOURS_PER_DAY_RANGE)
         }
         schedule_data["employees"].append(employee_data)
-        employee_main_list_for_overtime.append({"id": emp_id, "base_cost": cost_per_hour})
+        # employee_main_list_for_overtime.append({"id": emp_id, "base_cost": cost_per_hour})
 
     # 残業LPデータの生成
-    schedule_data["overtime_lp"]["total_overtime_hours"] = random.randint(*TOTAL_OVERTIME_HOURS_RANGE)
-    overtime_employees = []
-    for emp_info in employee_main_list_for_overtime:
-        overtime_cost = round(emp_info["base_cost"] * random.uniform(*OVERTIME_COST_MULTIPLIER_RANGE), 2)
-        overtime_employees.append({
-            "id": emp_info["id"], "overtime_cost": overtime_cost,
-            "max_overtime": random.randint(*MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE)
-        })
-    schedule_data["overtime_lp"]["employees"] = overtime_employees
+    # schedule_data["overtime_lp"]["total_overtime_hours"] = random.randint(*TOTAL_OVERTIME_HOURS_RANGE)
+    # overtime_employees = []
+    # for emp_info in employee_main_list_for_overtime:
+    #     overtime_cost = round(emp_info["base_cost"] * random.uniform(*OVERTIME_COST_MULTIPLIER_RANGE), 2)
+    #     overtime_employees.append({
+    #         "id": emp_info["id"], "overtime_cost": overtime_cost,
+    #         "max_overtime": random.randint(*MAX_OVERTIME_HOURS_PER_EMPLOYEE_RANGE)
+    #     })
+    # schedule_data["overtime_lp"]["employees"] = overtime_employees
     return schedule_data
 
 # --- 清掃タスクデータ生成関数 ---

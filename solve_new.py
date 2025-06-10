@@ -25,19 +25,19 @@ local_main 実行方法:
     python solve_new.py generated_combined_input_data.json > solution.json 2> run_debug.log
 
 """
-import json
-import sys
-import math
-import datetime
+import json, sys, math, datetime, os
 import functions_framework # Cloud Run/Functions 用
 from ortools.sat.python import cp_model
 from ortools.linear_solver import pywraplp
+from google.cloud import storage
 
 # --- グローバル定数 ---
 HOURS_IN_DAY = 24
 MAX_RETRY_ATTEMPTS = 3 # ソフト制約緩和の最大試行回数
-PENALTY_REDUCTION_FACTOR = 0.5 # ペナルティを緩和する際の係数
-DEFAULT_TIME_LIMIT_SEC = 60 # Cloud Run 用のデフォルト実行時間制限
+PENALTY_REDUCTION_FACTOR = 0.2 # ペナルティを緩和する際の係数
+DEFAULT_TIME_LIMIT_SEC = 3600 # Cloud Run 用のデフォルト実行時間制限
+GCS_BUCKET_NAME = "shift-optimization-result-storage"  # ★ あなたのGCSバケット名に置き換えてください
+GCS_OBJECT_PREFIX = "result-folder/"   # ★ GCS内の保存先プレフィックス (例: "solver_results/")
 
 _local_full_result_for_testing_only = {
     'logs': {
@@ -60,13 +60,13 @@ CP_SOLVER_STATUS_MAP = {
 }
 
 # --- HiGHSソルバー生成ユーティリティ ---
-def _create_highs_solver(model_name="model"):
-    try:
-        return pywraplp.Solver.CreateSolver("HIGHS", model_name)
-    except TypeError:
-        s = pywraplp.Solver.CreateSolver("HIGHS")
-        s.SetSolverSpecificParametersAsString(f"ModelName={model_name}")
-        return s
+# def _create_highs_solver(model_name="model"):
+#     try:
+#         return pywraplp.Solver.CreateSolver("HIGHS", model_name)
+#     except TypeError:
+#         s = pywraplp.Solver.CreateSolver("HIGHS")
+#         s.SetSolverSpecificParametersAsString(f"ModelName={model_name}")
+#         return s
 
 # --- ログ関連ヘルパー関数 ---
 def add_log(full_result_ref, category, message, details=None):
@@ -194,6 +194,23 @@ def get_cleaning_tasks_for_day_facility(full_result_ref, facility_id_str, curren
     except Exception as e: add_log(full_result_ref, 'warnings', f"清掃タスク取得中にエラー ({facility_id_str}, {date_str}): {e}", {"facility_id": facility_id_str, "date": date_str})
     return 0
 
+def get_effective_penalty(base_penalty_config, global_multiplier, facility_override_value=None, facility_override_multiplier=None):
+    base_val = base_penalty_config # settingsから取得した基本ペナルティ
+    
+    # 施設固有の直接指定値があればそれを優先
+    if facility_override_value is not None:
+        # print(f"Debug: Facility override value used: {facility_override_value}")
+        return facility_override_value * global_multiplier # グローバルな緩和乗数は常に適用
+    
+    # 施設固有の乗数があればそれを適用
+    if facility_override_multiplier is not None:
+        # print(f"Debug: Facility override multiplier used: {facility_override_multiplier}")
+        return base_val * facility_override_multiplier * global_multiplier
+        
+    # 施設固有の設定がなければグローバル設定のみ
+    # print(f"Debug: Global penalty used: {base_val * global_multiplier}")
+    return base_val * global_multiplier
+
 
 # ---------- 1. シフトスケジューリング (CP-SAT) ----------
 def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, time_limit_sec, retry_attempt=0, penalty_multipliers=None):
@@ -212,6 +229,11 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
     facilities_data = schedule_input_data['facilities']
     employees_data = schedule_input_data['employees']
 
+    base_score_ph = settings.get("base_score_per_hour", 1) # 1時間あたりの基本スコア
+    night_multi = settings.get("night_hour_multiplier", 1.0) # 夜勤時間のスコア倍率
+    weekend_multi = settings.get("weekend_day_multiplier", 1.0) # 週末勤務のスコア倍率
+
+    # 施設と従業員のインデックスとIDマッピングを作成
     num_facilities = len(facilities_data)
     F_indices = range(num_facilities)
     facility_id_to_idx = {f['id']: i for i, f in enumerate(facilities_data)}
@@ -229,6 +251,33 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
     cleaning_start_h = settings['cleaning_shift_start_hour']
     cleaning_end_h = settings['cleaning_shift_end_hour'] 
     cleaning_hours_duration = cleaning_end_h - cleaning_start_h
+
+    # 難易度パラメータ取得とスコアマップ作成
+    night_hours = set()
+    # settings から NIGHT_HOURS_RANGE_FOR_DIFFICULTY を取得
+    night_start_difficulty, night_end_difficulty = settings.get("NIGHT_HOURS_RANGE_FOR_DIFFICULTY", (22,5)) 
+    if night_start_difficulty < night_end_difficulty:
+        night_hours.update(range(night_start_difficulty, night_end_difficulty))
+    else:
+        night_hours.update(range(night_start_difficulty, 24))
+        night_hours.update(range(0, night_end_difficulty))
+
+    # ★ 各シフト (f,d,h) の難易度スコアを事前に計算
+    difficulty_score_map = {}
+    for f_idx in F_indices: # 現状、施設による難易度変動は入れていないが拡張可能
+        for d_idx in D_indices:
+            current_date_obj = planning_start_date_obj + datetime.timedelta(days=d_idx)
+            day_of_week_val = current_date_obj.weekday() # 月曜=0, 土曜=5, 日曜=6
+            
+            is_weekend = (day_of_week_val == 5 or day_of_week_val == 6)
+
+            for h_idx in H_indices:
+                score = float(base_score_ph) # floatで計算開始
+                if h_idx in night_hours:
+                    score *= night_multi
+                if is_weekend:
+                    score *= weekend_multi
+                difficulty_score_map[(f_idx, d_idx, h_idx)] = score # floatで保持
     
     emp_avail_matrix, night_shift_details_map = get_employee_availability_matrix(full_result_ref, employees_data, num_total_days, days_of_week_order, planning_start_date_obj) # ★変更
     add_log(full_result_ref, 'info', f"[{run_id}] 従業員の勤務可能時間マトリックス作成完了")
@@ -262,7 +311,11 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
         "hard_constraints": [
             "employee_availability_and_preferred_facility",
             "employee_one_facility_at_a_time",
-            "works_on_day_definition"
+            "works_on_day_definition",
+            "overnight_shift_continuity", # 夜勤連続性
+            "max_weekly_hours_40",        # 週40時間
+            "min_rest_interval_8h",       # 勤務間インターバル
+            "no_facility_change_within_day" # 同日施設変更禁止(近似)
         ],
         "soft_constraints_settings": {
             "consecutive_days": {
@@ -279,10 +332,16 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
             },
             "staff_shortage": {
                 "base_penalty": settings.get('staff_shortage_penalty', 50000),
-                "multiplier": penalty_multipliers.get("staff_shortage", 1.0)
+                "multiplier": penalty_multipliers.get("staff_shortage", 1.0),
+                "apply_difficulty_score_to_shortage": True
+            },
+            "difficulty_fairness": {
+                "base_penalty": settings.get('fairness_penalty_weight_difficulty', 1000),
+                "multiplier": penalty_multipliers.get("difficulty_fairness", 1.0)
             }
         }
     }
+
     if 'applied_constraints_history' not in full_result_ref: 
         full_result_ref['applied_constraints_history'] = [] # HTTP関数の場合、最初に初期化
     full_result_ref['applied_constraints_history'].append(current_constraints_settings)
@@ -319,7 +378,6 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
 
     # 〇 週最大40時間
     MAX_WEEKLY_HOURS = 40
-    add_log(full_result_ref, 'schedule', f"[{run_id}] 週最大{MAX_WEEKLY_HOURS}時間制約の追加開始")
     for w_idx in W_indices:
         # 計画期間が1週間を超える場合、7日ごとのウィンドウでチェック
         # 計画期間が7日以下の場合は、全期間でチェック
@@ -365,7 +423,6 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
                     # is_end_of_shift_at_current_hour <=> works_at_d_h AND (NOT works_at_next_hour)
                     model.AddBoolAnd([works_at_d_h, works_at_next_hour.Not()]).OnlyEnforceIf(is_end_of_shift_at_current_hour)
                     # (NOT is_end_of_shift_at_current_hour) も定義する必要がある
-                    # (NOT works_at_d_h) OR works_at_next_hour
                     model.AddBoolOr([works_at_d_h.Not(), works_at_next_hour]).OnlyEnforceIf(is_end_of_shift_at_current_hour.Not())
                 else:
                     # 計画期間の最後の時間スロットの場合、ここで勤務していればそれが終了
@@ -430,7 +487,6 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
                                     model.Add(x[other_f_idx, w_idx, next_d_idx, h_next_day] == 0).OnlyEnforceIf(first_hour_of_night_shift)
 
     # 〇 同日内での施設変更禁止 (1リクエスト:1施設の近似)
-    add_log(full_result_ref, 'schedule', f"[{run_id}] 同日内施設変更禁止制約の追加開始")
     for w_idx in W_indices:
         for d_idx in D_indices:
             # その日に従業員wが勤務する可能性のある施設をリストアップする変数
@@ -461,8 +517,13 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
 
     # --- ソフト制約 ---
 
+    # 緩和対象のペナルティを明確に区別
     soft_penalty_terms = []
     objective_terms = []
+
+    # スケールファクタを定義
+    # ここでは、浮動小数点数スコア（コスト）を1000倍して整数として扱う        
+    SCALE_FACTOR_DIFFICULTY = 1000 # 1000なら小数点数3位までのコスト精度を確保
     
     # 〇 最大連続勤務日数 (ソフト制約)
     max_consecutive_setting = settings.get('max_consecutive_work_days', 5)
@@ -515,15 +576,35 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
             soft_penalty_terms.append(excess_daily_hours * current_daily_hours_penalty)
 
     # 〇 各日の必要人数の充足 (ソフト制約)
-    base_staff_shortage_penalty = current_constraints_settings["soft_constraints_settings"]["staff_shortage"]["base_penalty"]
-    current_staff_shortage_penalty = base_staff_shortage_penalty * current_constraints_settings["soft_constraints_settings"]["staff_shortage"]["multiplier"]
+    base_staff_shortage_penalty_config = current_constraints_settings["soft_constraints_settings"]["staff_shortage"]["base_penalty"]
+    current_staff_shortage_global_multiplier = current_constraints_settings["soft_constraints_settings"]["staff_shortage"]["multiplier"]
+    apply_difficulty_to_shortage = current_constraints_settings["soft_constraints_settings"]["staff_shortage"]["apply_difficulty_score_to_shortage"]
+
     for f_idx in F_indices:
+
+        facility_details = facilities_data[f_idx]
+        facility_penalty_overrides = facility_details.get("penalty_overrides", {}) # ★施設固有設定を取得
+        
+        # スタッフ不足ペナルティの施設固有乗数を取得
+        facility_shortage_override_multiplier = facility_penalty_overrides.get("staff_shortage_multiplier")
+        # 施設固有の直接指定ペナルティ値を取得することも可能
+        # facility_shortage_override_value = facility_penalty_overrides.get("staff_shortage_penalty")
+
+        effective_staff_shortage_base_penalty = get_effective_penalty(
+            base_staff_shortage_penalty_config,
+            current_staff_shortage_global_multiplier, # グローバルな緩和係数
+            facility_override_multiplier=facility_shortage_override_multiplier # 施設固有の乗数
+            # facility_override_value=facility_shortage_override_value # 直接指定値を使う場合
+        )
+
         facility_details = facilities_data[f_idx]
         facility_cleaning_capacity_per_hr = facility_details.get('cleaning_capacity_tasks_per_hour_per_employee', 1)
         if facility_cleaning_capacity_per_hr <= 0: facility_cleaning_capacity_per_hr = 1
+
         for d_idx in D_indices:
             current_date = planning_start_date_obj + datetime.timedelta(days=d_idx)
             daily_cleaning_tasks = get_cleaning_tasks_for_day_facility(full_result_ref, facility_idx_to_id[f_idx], current_date, cleaning_tasks_data, days_of_week_order)
+            
             for h_idx in H_indices:
                 required_staff_target = 1
                 if cleaning_start_h <= h_idx < cleaning_end_h:
@@ -531,32 +612,112 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
                         required_staff_target = max(1, math.ceil(daily_cleaning_tasks / (facility_cleaning_capacity_per_hr * cleaning_hours_duration)))
                     else: required_staff_target = 1
                 
-                staff_count = sum(x[f_idx, w_idx, d_idx, h_idx] for w_idx in W_indices)
-                actual_shortage = model.NewIntVar(0, max(1,num_employees), f'short_f{f_idx}_d{d_idx}_h{h_idx}') # 上限は従業員数
+                staff_count = sum(x[f_idx, w_idx_s, d_idx, h_idx] for w_idx_s in W_indices)
+                actual_shortage = model.NewIntVar(0, max(1,num_employees), f'sh_f{f_idx}_d{d_idx}_h{h_idx}')
+                is_s = model.NewBoolVar(f'is_s_f{f_idx}_d{d_idx}_h{h_idx}')
+                model.Add(staff_count < required_staff_target).OnlyEnforceIf(is_s)
+                model.Add(staff_count >= required_staff_target).OnlyEnforceIf(is_s.Not())
+                model.Add(actual_shortage == required_staff_target - staff_count).OnlyEnforceIf(is_s)
+                model.Add(actual_shortage == 0).OnlyEnforceIf(is_s.Not())
                 
-                is_short = model.NewBoolVar(f'is_short_f{f_idx}_d{d_idx}_h{h_idx}')
-                model.Add(staff_count < required_staff_target).OnlyEnforceIf(is_short)
-                model.Add(staff_count >= required_staff_target).OnlyEnforceIf(is_short.Not())
-                model.Add(actual_shortage == required_staff_target - staff_count).OnlyEnforceIf(is_short)
-                model.Add(actual_shortage == 0).OnlyEnforceIf(is_short.Not())
-                soft_penalty_terms.append(actual_shortage * current_staff_shortage_penalty)
+                # 不足ペナルティにシフトの難易度スコアを乗じる (apply_difficulty_to_shortage が True の場合)
+                penalty_value_for_this_shortage = (
+                    effective_staff_shortage_base_penalty  *
+                    SCALE_FACTOR_DIFFICULTY
+                )
+                if apply_difficulty_to_shortage:
+                    shift_difficulty_score = difficulty_score_map.get((f_idx, d_idx, h_idx), base_score_ph) # float
+                    penalty_value_for_this_shortage *= shift_difficulty_score
+                
+                # CP-SATは整数を好むためペナルティを整数に丸める
+                final_penalty_per_short_person = int(round(penalty_value_for_this_shortage))
+                soft_penalty_terms.append(actual_shortage * final_penalty_per_short_person)
 
-    # 〇 総人件費の最小化 (目的関数の一部)
+    # 〇 従業員間の総獲得難易度スコアの公平性 (ソフト制約)
+    total_difficulty_per_employee_vars = [] #IntVarのリスト
+    for w_idx in W_indices:
+        # 難易度スコアはfloatの可能性があるため、1000倍して整数として扱う (CP-SATのため)
+        # 目的関数やペナルティ計算時にもこのスケールを考慮する必要がある
+
+        MAX_HOURS_PER_WEEK = 24 * 7  # 168時間
+        MAX_DIFFICULTY_MULTIPLIER = base_score_ph * night_multi * weekend_multi  # 1.95
+        SAFETY_FACTOR = 2  # 余裕を持たせる
+
+        MAX_TOTAL_DIFFICULTY = (
+            MAX_HOURS_PER_WEEK * 
+            MAX_DIFFICULTY_MULTIPLIER * 
+            SCALE_FACTOR_DIFFICULTY * 
+            SAFETY_FACTOR
+        )
+
+        employee_total_difficulty_scaled = model.NewIntVar(
+            0, 
+            int(MAX_TOTAL_DIFFICULTY), 
+            f'total_diff_s_w{w_idx}'
+        )        
+        terms_scaled = []
+        for f_idx_s in F_indices:
+            for d_idx_s in D_indices:
+                for h_idx_s in H_indices:
+                    # difficulty_score_map の値もスケールアップして整数にする
+                    scaled_score = int(round(
+                        difficulty_score_map.get((f_idx_s, d_idx_s, h_idx_s), base_score_ph) * 
+                        SCALE_FACTOR_DIFFICULTY))
+                    terms_scaled.append(x[f_idx_s, w_idx, d_idx_s, h_idx_s] * scaled_score)
+        model.Add(employee_total_difficulty_scaled == sum(terms_scaled))
+        total_difficulty_per_employee_vars.append(employee_total_difficulty_scaled)
+    
+    if total_difficulty_per_employee_vars: # 従業員がいる場合のみ
+        max_total_difficulty_var_s = model.NewIntVar(0, 1000000 * SCALE_FACTOR_DIFFICULTY, 'max_total_diff_s')
+        min_total_difficulty_var_s = model.NewIntVar(0, 1000000 * SCALE_FACTOR_DIFFICULTY, 'min_total_diff_s')
+        model.AddMaxEquality(max_total_difficulty_var_s, total_difficulty_per_employee_vars)
+        model.AddMinEquality(min_total_difficulty_var_s, total_difficulty_per_employee_vars)
+        
+        difficulty_spread_penalty_var_s = model.NewIntVar(0, 1000000 * SCALE_FACTOR_DIFFICULTY, 'diff_spread_pen_s')
+        model.Add(difficulty_spread_penalty_var_s == max_total_difficulty_var_s - min_total_difficulty_var_s)
+        
+        base_fairness_penalty = current_constraints_settings["soft_constraints_settings"]["difficulty_fairness"]["base_penalty"]
+        current_fairness_multiplier = current_constraints_settings["soft_constraints_settings"]["difficulty_fairness"]["multiplier"]
+        # 差分（spread）はスケーリング済み（×1000）
+        # ペナルティ重みを1000で割って元のスケールに戻す
+        # これにより、最終的なペナルティは適切なスケールになる
+        effective_fairness_penalty_weight = int(round(base_fairness_penalty * current_fairness_multiplier / SCALE_FACTOR_DIFFICULTY))
+        if effective_fairness_penalty_weight < 1 : effective_fairness_penalty_weight = 1 # 0にならないように
+
+        soft_penalty_terms.append(difficulty_spread_penalty_var_s * effective_fairness_penalty_weight)
+
+
+    # 〇 目的関数（シフトが実際に組まれた場合に直接的に発生するコストや評価）
+    # objective_terms と soft_penalty_terms を分けておく方が、緩和対象のペナルティを明確に区別でき、シンプルロジックを維持できる
     for f_idx in F_indices:
         for w_idx in W_indices:
-            cost_per_hour = employees_data[w_idx].get('cost_per_hour', 1000)
+            # cost_per_hour = employees_data[w_idx].get('cost_per_hour', 1000)
             for d_idx in D_indices:
                 for h_idx in H_indices:
-                    objective_terms.append(x[f_idx, w_idx, d_idx, h_idx] * cost_per_hour)
+                    # 従業員の人件費（時給 × 労働時間）は一旦除外
+                    # objective_terms.append(x[f_idx, w_idx, d_idx, h_idx] * cost_per_hour)
+                    
+                    # アサイン難易度スコアを追加
+                    difficulty_cost_float = difficulty_score_map.get((f_idx, d_idx, h_idx), base_score_ph) # float
+                    global_diff_multiplier = settings.get("global_difficulty_cost_multiplier", 0.1) # float
+                    
+                    # 難易度スコアをコストとして追加（整数化）
+                    # (難易度スコア * 全体係数) が、難易度1ポイントあたりの追加コストになるイメージ
+                    additional_difficulty_cost_int = int(round(difficulty_cost_float * global_diff_multiplier))
+                    objective_terms.append(x[f_idx, w_idx, d_idx, h_idx] * additional_difficulty_cost_int)
     
+    # 直接的なコストと、制約違反のペナルティの合計を最小化する
     model.Minimize(sum(objective_terms) + sum(soft_penalty_terms))
+
     add_log(full_result_ref, 'schedule', f"[{run_id}] 目的関数設定完了")
     add_model_stats_log(full_result_ref, model, 'schedule', f"[{run_id}] 目的関数設定後のモデル状態")
     
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = settings.get('time_limit_sec', 60)
     solver.parameters.log_search_progress = True
-    # solver.parameters.num_search_workers = 8 # 必要に応じて有効化
+    # Cloud Run環境でのリソース制限を考慮
+    MAX_WORKERS = min(8, os.cpu_count() or 1)  # より安全な実装例
+    solver.parameters.num_search_workers = MAX_WORKERS
 
     add_log(full_result_ref, 'info', f"[{run_id}] CP-SATソルバー実行開始 (制限時間: {time_limit_sec}秒)")
     status = solver.Solve(model)
@@ -572,7 +733,8 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
         result['wall_time_sec'] = wall_time
         add_log(full_result_ref, 'schedule', f"[{run_id}] 解が見つかりました", {"objective": result['objective'], "wall_time_sec": result['wall_time_sec']})
         
-        assignments = []
+        # アサイン情報に難易度スコアも追加
+        assignments_with_difficulty = [] 
         for w_idx in W_indices:
             emp_id = employee_idx_to_id[w_idx]
             for d_idx in D_indices:
@@ -580,16 +742,80 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
                 for f_idx in F_indices:
                     facility_id = facility_idx_to_id[f_idx]
                     current_block_start_hour = -1
+                    current_block_difficulty_scores = [] # このブロックの各時間の難易度スコアを保持
+
                     for h_idx in H_indices:
                         if solver.Value(x[f_idx, w_idx, d_idx, h_idx]) == 1:
-                            if current_block_start_hour == -1: current_block_start_hour = h_idx
+                            if current_block_start_hour == -1:
+                                current_block_start_hour = h_idx
+                            current_block_difficulty_scores.append(difficulty_score_map.get((f_idx, d_idx, h_idx), 0)) # ★追加
                         else:
                             if current_block_start_hour != -1:
-                                assignments.append({"employee_id": emp_id, "facility_id": facility_id, "date": current_date_str, "start_hour": current_block_start_hour, "end_hour": h_idx})
+                                # ブロックの平均難易度または合計難易度を計算 (ここでは平均)
+                                avg_difficulty = sum(current_block_difficulty_scores) / len(current_block_difficulty_scores) if current_block_difficulty_scores else 0
+                                assignments_with_difficulty.append({
+                                    "employee_id": emp_id,
+                                    "facility_id": facility_id,
+                                    "date": current_date_str,
+                                    "start_hour": current_block_start_hour,
+                                    "end_hour": h_idx,
+                                    "difficulty_score_avg": round(avg_difficulty, 2) # ★追加
+                                })
                                 current_block_start_hour = -1
-                    if current_block_start_hour != -1:
-                        assignments.append({"employee_id": emp_id, "facility_id": facility_id, "date": current_date_str, "start_hour": current_block_start_hour, "end_hour": HOURS_IN_DAY})
-        result['assignments'] = assignments
+                                current_block_difficulty_scores = [] # ★リセット
+                    if current_block_start_hour != -1: # 最終時間まで勤務していた場合
+                        avg_difficulty = sum(current_block_difficulty_scores) / len(current_block_difficulty_scores) if current_block_difficulty_scores else 0
+                        assignments_with_difficulty.append({
+                            "employee_id": emp_id,
+                            "facility_id": facility_id,
+                            "date": current_date_str,
+                            "start_hour": current_block_start_hour,
+                            "end_hour": HOURS_IN_DAY,
+                            "difficulty_score_avg": round(avg_difficulty, 2) # ★追加
+                        })
+
+        result['assignments'] = assignments_with_difficulty 
+
+        # 不足シフトとその難易度スコアを記録
+        shortage_shifts_with_difficulty = []
+        for f_idx in F_indices:
+            facility_id = facility_idx_to_id[f_idx]
+            facility_details = facilities_data[f_idx] # staff_shortageペナルティ計算と同様のロジック
+            facility_cleaning_capacity_per_hr = facility_details.get('cleaning_capacity_tasks_per_hour_per_employee', 1)
+            if facility_cleaning_capacity_per_hr <= 0: facility_cleaning_capacity_per_hr = 1
+
+            for d_idx in D_indices:
+                current_date_obj = planning_start_date_obj + datetime.timedelta(days=d_idx)
+                date_str = current_date_obj.strftime("%Y-%m-%d")
+                daily_cleaning_tasks = get_cleaning_tasks_for_day_facility(full_result_ref, facility_id, current_date_obj, cleaning_tasks_data, days_of_week_order)
+                
+                for h_idx in H_indices:
+                    required_staff_target = 1
+                    if cleaning_start_h <= h_idx < cleaning_end_h:
+                        if cleaning_hours_duration > 0 and daily_cleaning_tasks > 0:
+                            required_staff_target = max(1, math.ceil(daily_cleaning_tasks / (facility_cleaning_capacity_per_hr * cleaning_hours_duration)))
+                        else: required_staff_target = 1
+                    
+                    current_assigned_staff = 0
+                    for w_idx_check in W_indices: # この時間、この施設にアサインされた人数を再計算
+                        if solver.Value(x[f_idx, w_idx_check, d_idx, h_idx]) == 1:
+                            current_assigned_staff += 1
+                    
+                    actual_shortage_count = required_staff_target - current_assigned_staff
+                    
+                    if actual_shortage_count > 0:
+                        shift_difficulty = difficulty_score_map.get((f_idx, d_idx, h_idx), 0)
+                        shortage_shifts_with_difficulty.append({
+                            "facility_id": facility_id,
+                            "date": date_str,
+                            "hour": h_idx,
+                            "shortage_count": actual_shortage_count,
+                            "required_staff": required_staff_target,
+                            "assigned_staff": current_assigned_staff,
+                            "difficulty_score_of_short_shift": round(shift_difficulty, 2)
+                        })
+
+        result['shortage_shifts_details'] = shortage_shifts_with_difficulty
 
         diagnostics = {"hours_worked_per_employee": {}, "days_worked_per_employee": {}}
         for w_idx in W_indices:
@@ -615,70 +841,70 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
             return result # 最終的な失敗結果を返す
 
 # ---------- 2. 残業時間最適配分 (LP) ----------
-def solve_overtime_lp(full_result_ref, overtime_input_data):
-    run_id = f"overtime_{datetime.datetime.now().strftime('%H%M%S%f')}"
-    add_log(full_result_ref, 'info', f"[{run_id}] 残業時間最適配分処理開始")
-    if not overtime_input_data or not overtime_input_data.get('employees'):
-        msg = '残業データが提供されていないか、従業員リストが空です。'
-        add_log(full_result_ref, 'warnings', f"[{run_id}] {msg}")
-        return {'status': 'NO_DATA', 'message': msg, 'run_id': run_id}
+# def solve_overtime_lp(full_result_ref, overtime_input_data):
+#     run_id = f"overtime_{datetime.datetime.now().strftime('%H%M%S%f')}"
+#     add_log(full_result_ref, 'info', f"[{run_id}] 残業時間最適配分処理開始")
+#     if not overtime_input_data or not overtime_input_data.get('employees'):
+#         msg = '残業データが提供されていないか、従業員リストが空です。'
+#         add_log(full_result_ref, 'warnings', f"[{run_id}] {msg}")
+#         return {'status': 'NO_DATA', 'message': msg, 'run_id': run_id}
 
-    employees_ot_data = overtime_input_data['employees']
-    total_ot_needed = overtime_input_data.get('total_overtime_hours', 0)
+#     employees_ot_data = overtime_input_data['employees']
+#     total_ot_needed = overtime_input_data.get('total_overtime_hours', 0)
 
-    if total_ot_needed <= 0:
-        msg = '必要な総残業時間が0以下です。処理をスキップします。'
-        add_log(full_result_ref, 'info', f"[{run_id}] {msg}")
-        return {'status': 'OK', 'objective': 0, 'allocation': [], 'message': msg, 'run_id': run_id}
+#     if total_ot_needed <= 0:
+#         msg = '必要な総残業時間が0以下です。処理をスキップします。'
+#         add_log(full_result_ref, 'info', f"[{run_id}] {msg}")
+#         return {'status': 'OK', 'objective': 0, 'allocation': [], 'message': msg, 'run_id': run_id}
 
-    solver = _create_highs_solver("overtime_lp")
-    if not solver:
-        msg = 'HiGHSソルバーの作成に失敗しました。'
-        add_log(full_result_ref, 'errors', f"[{run_id}] {msg}")
-        return {'status': 'SOLVER_ERROR', 'message': msg, 'run_id': run_id}
-    add_log(full_result_ref, 'overtime', f"[{run_id}] HiGHSソルバーオブジェクト作成完了")
+#     solver = _create_highs_solver("overtime_lp")
+#     if not solver:
+#         msg = 'HiGHSソルバーの作成に失敗しました。'
+#         add_log(full_result_ref, 'errors', f"[{run_id}] {msg}")
+#         return {'status': 'SOLVER_ERROR', 'message': msg, 'run_id': run_id}
+#     add_log(full_result_ref, 'overtime', f"[{run_id}] HiGHSソルバーオブジェクト作成完了")
 
-    x = {}
-    for emp in employees_ot_data:
-        max_ot = emp.get('max_overtime', 0)
-        if 'id' not in emp or max_ot <= 0:
-            add_log(full_result_ref, 'warnings', f"[{run_id}] 従業員 {emp.get('id', 'ID不明')} の残業変数は作成されません。", emp)
-            continue
-        x[emp['id']] = solver.NumVar(0, max_ot, f'ot_{emp["id"]}')
+#     x = {}
+#     for emp in employees_ot_data:
+#         max_ot = emp.get('max_overtime', 0)
+#         if 'id' not in emp or max_ot <= 0:
+#             add_log(full_result_ref, 'warnings', f"[{run_id}] 従業員 {emp.get('id', 'ID不明')} の残業変数は作成されません。", emp)
+#             continue
+#         x[emp['id']] = solver.NumVar(0, max_ot, f'ot_{emp["id"]}')
     
-    if not x:
-        if total_ot_needed > 0: msg = "残業を割り当てる有効な従業員がいませんが、残業が必要です。"
-        else: msg = "残業を割り当てる有効な従業員がおらず、必要な残業もありません。"
-        log_level = 'errors' if total_ot_needed > 0 else 'info'
-        add_log(full_result_ref, log_level, f"[{run_id}] {msg}")
-        return {'status': 'INFEASIBLE' if total_ot_needed > 0 else 'OK', 'objective': 0, 'allocation': [], 'message': msg, 'run_id': run_id}
+#     if not x:
+#         if total_ot_needed > 0: msg = "残業を割り当てる有効な従業員がいませんが、残業が必要です。"
+#         else: msg = "残業を割り当てる有効な従業員がおらず、必要な残業もありません。"
+#         log_level = 'errors' if total_ot_needed > 0 else 'info'
+#         add_log(full_result_ref, log_level, f"[{run_id}] {msg}")
+#         return {'status': 'INFEASIBLE' if total_ot_needed > 0 else 'OK', 'objective': 0, 'allocation': [], 'message': msg, 'run_id': run_id}
             
-    add_log(full_result_ref, 'overtime', f"[{run_id}] 決定変数作成完了 (有効従業員数: {len(x)})")
-    solver.Add(sum(x.values()) == total_ot_needed)
-    add_log(full_result_ref, 'overtime', f"[{run_id}] 総残業時間制約 ({total_ot_needed}時間) 追加完了")
+#     add_log(full_result_ref, 'overtime', f"[{run_id}] 決定変数作成完了 (有効従業員数: {len(x)})")
+#     solver.Add(sum(x.values()) == total_ot_needed)
+#     add_log(full_result_ref, 'overtime', f"[{run_id}] 総残業時間制約 ({total_ot_needed}時間) 追加完了")
     
-    objective_terms = [emp.get('overtime_cost', 99999) * x[emp['id']] for emp in employees_ot_data if emp['id'] in x]
-    if objective_terms: solver.Minimize(sum(objective_terms)); add_log(full_result_ref, 'overtime', f"[{run_id}] 目的関数設定完了")
-    else: add_log(full_result_ref, 'warnings', f"[{run_id}] 残業配分: 目的関数が設定されませんでした。")
+#     objective_terms = [emp.get('overtime_cost', 99999) * x[emp['id']] for emp in employees_ot_data if emp['id'] in x]
+#     if objective_terms: solver.Minimize(sum(objective_terms)); add_log(full_result_ref, 'overtime', f"[{run_id}] 目的関数設定完了")
+#     else: add_log(full_result_ref, 'warnings', f"[{run_id}] 残業配分: 目的関数が設定されませんでした。")
 
-    add_model_stats_log(full_result_ref, solver, 'overtime', f"[{run_id}] LPモデル構築完了後の状態")
-    add_log(full_result_ref, 'info', f"[{run_id}] LPソルバー実行開始")
-    status = solver.Solve()
-    add_log(full_result_ref, 'info', f"[{run_id}] LPソルバー実行完了 (ステータスコード: {status})")
+#     add_model_stats_log(full_result_ref, solver, 'overtime', f"[{run_id}] LPモデル構築完了後の状態")
+#     add_log(full_result_ref, 'info', f"[{run_id}] LPソルバー実行開始")
+#     status = solver.Solve()
+#     add_log(full_result_ref, 'info', f"[{run_id}] LPソルバー実行完了 (ステータスコード: {status})")
 
-    if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
-        obj_val = solver.Objective().Value() if objective_terms else 0
-        allocation = [{'id': emp_id, 'overtime_hours': var.solution_value()} for emp_id, var in x.items()]
-        add_log(full_result_ref, 'overtime', f"[{run_id}] 解が見つかりました", {"objective": obj_val, "num_allocations": len(allocation)})
-        return {'status': 'OK', 'objective': obj_val, 'allocation': allocation, 'run_id': run_id}
-    else:
-        status_map = { pywraplp.Solver.INFEASIBLE: 'INFEASIBLE', pywraplp.Solver.UNBOUNDED: 'UNBOUNDED', 
-                       pywraplp.Solver.ABNORMAL: 'ABNORMAL', pywraplp.Solver.NOT_SOLVED: 'NOT_SOLVED',
-                       pywraplp.Solver.MODEL_INVALID: 'MODEL_INVALID' }
-        status_str = status_map.get(status, f'UNKNOWN_STATUS_{status}')
-        msg = f'残業配分問題で解が見つかりませんでした (ステータス: {status_str})。'
-        add_log(full_result_ref, 'errors', f"[{run_id}] {msg}", {"status_code": status, "status_text": status_str})
-        return {'status': status_str, 'message': msg, 'run_id': run_id}
+#     if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
+#         obj_val = solver.Objective().Value() if objective_terms else 0
+#         allocation = [{'id': emp_id, 'overtime_hours': var.solution_value()} for emp_id, var in x.items()]
+#         add_log(full_result_ref, 'overtime', f"[{run_id}] 解が見つかりました", {"objective": obj_val, "num_allocations": len(allocation)})
+#         return {'status': 'OK', 'objective': obj_val, 'allocation': allocation, 'run_id': run_id}
+#     else:
+#         status_map = { pywraplp.Solver.INFEASIBLE: 'INFEASIBLE', pywraplp.Solver.UNBOUNDED: 'UNBOUNDED', 
+#                        pywraplp.Solver.ABNORMAL: 'ABNORMAL', pywraplp.Solver.NOT_SOLVED: 'NOT_SOLVED',
+#                        pywraplp.Solver.MODEL_INVALID: 'MODEL_INVALID' }
+#         status_str = status_map.get(status, f'UNKNOWN_STATUS_{status}')
+#         msg = f'残業配分問題で解が見つかりませんでした (ステータス: {status_str})。'
+#         add_log(full_result_ref, 'errors', f"[{run_id}] {msg}", {"status_code": status, "status_text": status_str})
+#         return {'status': status_str, 'message': msg, 'run_id': run_id}
 
 # ---------- HTTPトリガー関数 ----------
 @functions_framework.http
@@ -736,17 +962,46 @@ def shift_optimazation(request):
         add_log(current_full_result, 'errors', f"[{run_id_main}] {msg}")
         current_full_result['schedule_result'] = {'status': 'NO_DATA_ERROR', 'message': msg, 'run_id': run_id_main}
 
-    if 'overtime_lp' in schedule_input:
-        print(f"--- [{run_id_main}] 残業時間最適配分を開始 ---", file=sys.stderr)
-        current_full_result['overtime_result'] = solve_overtime_lp(current_full_result, schedule_input.get('overtime_lp', {}))
-        print(f"--- [{run_id_main}] 残業時間最適配分を終了 ---", file=sys.stderr)
-    else:
-        add_log(current_full_result, 'info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
-        current_full_result['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
+    # if 'overtime_lp' in schedule_input:
+    #     print(f"--- [{run_id_main}] 残業時間最適配分を開始 ---", file=sys.stderr)
+    #     current_full_result['overtime_result'] = solve_overtime_lp(current_full_result, schedule_input.get('overtime_lp', {}))
+    #     print(f"--- [{run_id_main}] 残業時間最適配分を終了 ---", file=sys.stderr)
+    # else:
+    #     add_log(current_full_result, 'info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
+    #     current_full_result['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
+
+    # --- GCSへの保存処理 ---
+    try:
+        result_json_string = json.dumps(current_full_result, indent=2, ensure_ascii=False)
+        
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        
+        # オブジェクト名（ファイル名） (例: prefix + run_id + .json)
+        # run_id_main にはマイクロ秒まで含めているので、ほぼ一意になる
+        object_name = f"{GCS_OBJECT_PREFIX}{run_id_main}_solution.json"
+        
+        blob = bucket.blob(object_name)
+        blob.upload_from_string(
+            result_json_string,
+            content_type='application/json'
+        )
+        gcs_path = f"gs://{GCS_BUCKET_NAME}/{object_name}"
+        add_log(current_full_result, 'info', f"[{run_id_main}] 結果JSONをGCSに保存成功: {gcs_path}")
+        print(f"結果をGCSに保存しました: {gcs_path}", file=sys.stderr)
+        current_full_result["gcs_output_path"] = gcs_path # レスポンスにもパスを含める
+
+    except Exception as e:
+        error_message_gcs = f"[{run_id_main}] GCSへの結果保存中にエラー: {str(e)}"
+        add_log(current_full_result, 'errors', error_message_gcs)
+        print(error_message_gcs, file=sys.stderr)
+        # エラーが発生しても、HTTPレスポンスは返す
+        current_full_result["gcs_save_error"] = str(e)
 
     add_log(current_full_result, 'info', f"[{run_id_main}] HTTPリクエスト処理終了")
     return (json.dumps(current_full_result, indent=2, ensure_ascii=False), 
             200, {'Content-Type': 'application/json; charset=utf-8'})
+
 
 # コマンドライン実行用の main 関数 (ローカルテスト用)
 def local_main():
@@ -810,13 +1065,13 @@ def local_main():
         add_log(_local_full_result_for_testing_only, 'errors', f"[{run_id_main}] {msg}")
         _local_full_result_for_testing_only['schedule_result'] = {'status': 'NO_DATA_ERROR', 'message': msg, 'run_id': run_id_main}
 
-    if 'overtime_lp' in schedule_input:
-        print(f"--- [{run_id_main}] 残業時間最適配分を開始 ---", file=sys.stderr)
-        _local_full_result_for_testing_only['overtime_result'] = solve_overtime_lp(_local_full_result_for_testing_only, schedule_input.get('overtime_lp', {}))
-        print(f"--- [{run_id_main}] 残業時間最適配分を終了 ---", file=sys.stderr)
-    else:
-        add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
-        _local_full_result_for_testing_only['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
+    # if 'overtime_lp' in schedule_input:
+    #     print(f"--- [{run_id_main}] 残業時間最適配分を開始 ---", file=sys.stderr)
+    #     _local_full_result_for_testing_only['overtime_result'] = solve_overtime_lp(_local_full_result_for_testing_only, schedule_input.get('overtime_lp', {}))
+    #     print(f"--- [{run_id_main}] 残業時間最適配分を終了 ---", file=sys.stderr)
+    # else:
+    #     add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] 入力データに overtime_lp セクションが存在しないため、残業配分処理をスキップします。")
+    #     _local_full_result_for_testing_only['overtime_result'] = {'status': 'NOT_REQUESTED', 'message': '残業データが入力ファイルにありませんでした。', 'run_id': run_id_main}
 
     add_log(_local_full_result_for_testing_only, 'info', f"[{run_id_main}] ローカル実行終了")
     
