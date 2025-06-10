@@ -825,7 +825,7 @@ def solve_schedule(full_result_ref, schedule_input_data, cleaning_tasks_data, ti
             total_days = sum(solver.Value(works_on_day[w_idx, d_idx]) for d_idx in D_indices)
             diagnostics["days_worked_per_employee"][emp_id] = total_days
         result["diagnostics"] = diagnostics
-        add_log(full_result_ref, 'schedule', f"[{run_id}] 結果の整形完了", {"num_assignments": len(assignments)})
+        add_log(full_result_ref, 'schedule', f"[{run_id}] 結果の整形完了", {"num_assignments": len(assignments_with_difficulty)})
         return result # 成功したので結果を返す
     else: # INFEASIBLE, MODEL_INVALID, UNKNOWN
         result['message'] = f"[{run_id}] 解が見つかりませんでした (ステータス: {status_str})"
