@@ -4,3 +4,4 @@ functions_framework
 requests
 google-auth
 google-cloud-storage
+google-cloud-tasks

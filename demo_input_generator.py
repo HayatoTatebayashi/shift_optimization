@@ -4,7 +4,7 @@ import datetime
 
 # --- 設定パラメータ ---
 NUM_FACILITIES = 48  # 実際に合わせる
-NUM_EMPLOYEES = 350  # 実際に合わせる
+NUM_EMPLOYEES = 420  # 実際に合わせる
 PLANNING_START_DATE_STR = "2025-06-09"  # 計画開始日
 NUM_DAYS_IN_PLANNING_PERIOD = 7      # 例: 1週間 (7, 14, 30など)
 DAYS_OF_WEEK_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -54,7 +54,9 @@ DIFFICULTY_SCORE_PARAMS = {
     "night_hour_multiplier": 1.5, # 夜勤時間帯のスコア倍率
     "weekend_day_multiplier": 1.3, # 週末のスコア倍率
     "global_difficulty_cost_multiplier": 0.1,  # グローバル難易度コスト倍率
-    "fairness_penalty_weight_difficulty": 1000  # 公平性ペナルティの重み（難易度スコア計算用）
+    "fairness_penalty_weight_difficulty": 1000,  # 公平性ペナルティの重み（難易度スコア計算用）
+    "cleaning_shift_shortage_multiplier": 1.5, # 清掃シフトが不足した場合のペナルティ乗数
+    "facility_move_penalty": 200000 # ★追加: 通常時間帯の施設移動に対する重いペナルティ
 }
 # 深夜とみなす時間帯 (0-23時表記)
 NIGHT_HOURS_RANGE_FOR_DIFFICULTY = (22, 5) # 22時から翌朝5時 (5時台は含まない)
@@ -93,7 +95,7 @@ def generate_schedule_data():
     schedule_data["settings"]["cleaning_shift_end_hour"] = CLEANING_SHIFT_END_HOUR
     schedule_data["settings"].update(PENALTY_SETTINGS) # 定数辞書全体を挿入
     schedule_data["settings"].update(DIFFICULTY_SCORE_PARAMS)
-    schedule_data["settings"]["NIGHT_HOURS_RANGE_FOR_DIFFICULTY"] = NIGHT_HOURS_RANGE_FOR_DIFFICULTY
+    schedule_data["settings"]["NIGHT_HOURS_RANGE_FOR_DIFFICULTY"] = NIGHT_HOURS_RANGE_FOR_DIFFICULTY    
 
     # 施設データの生成
     facility_ids = []
